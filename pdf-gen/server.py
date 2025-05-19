@@ -5,11 +5,7 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/')
-def health_check():
-    return "Math PDF Generator is running. Use /generate-pdf endpoint.", 200
-
-@app.route('/generate-pdf', methods=['GET'])
+@app.route('/', methods=['GET'])
 def generate_pdf_route():
     try:
         num_questions_str = request.args.get('num_questions', '12')
@@ -45,4 +41,7 @@ def generate_pdf_route():
 if __name__ == '__main__':
     # Port is often set by environment variable in production, e.g. PORT
     port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    # When running with gunicorn (recommended for production),
+    # gunicorn will bind to host and port.
+    # For direct `python server.py` execution:
+    app.run(host='0.0.0.0', port=port, debug=False)

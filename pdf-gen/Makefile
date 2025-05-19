@@ -32,7 +32,7 @@ requirements.txt:
 
 # Target to build the Docker image
 # Depends on source files, Dockerfile, and requirements.txt
-build: requirements.txt Dockerfile math-question.py server.py
+build: requirements.txt Dockerfile math_question.py server.py
 	@echo "Building Docker image $(IMAGE_REPO)/$(IMAGE_NAME) and tagging as '$(IMAGE_TAG)' and '$(DATETIME_TAG)'..."
 	docker build -t $(FULL_IMAGE_NAME) -t $(FULL_IMAGE_NAME_DATETIME) .
 	@echo "Build complete. Image tagged as $(FULL_IMAGE_NAME) and $(FULL_IMAGE_NAME_DATETIME)."
@@ -49,23 +49,21 @@ push: build
 # Maps local port to container port
 run: build
 	@echo "Running Docker container $(FULL_IMAGE_NAME) on port $(LOCAL_PORT)..."
-	docker run --rm -p $(LOCAL_PORT):$(CONTAINER_PORT) $(FULL_IMAGE_NAME)
+	docker run --rm -p $(LOCAL_PORT):$(CONTAINER_PORT) --name math-pdf-gen-container $(FULL_IMAGE_NAME)
 
-# Target to test local PDF generation script (math-question.py)
-generate-local-pdf: math-question.py
-	@echo "Generating local PDF using math-question.py..."
-	python math-question.py
+# Target to test local PDF generation script (math_question.py)
+generate-local-pdf: math_question.py
+	@echo "Generating local PDF using math_question.py..."
+	python math_question.py
 	@echo "Generated math_homework_add_subtract.pdf locally."
 
 # Target to view logs of the running container (assuming container is named)
-# This is a helper, you might need to adapt it if you run multiple instances or without --name
-# For 'make run', the container is run with --rm, so logs are harder to get after it stops.
-# This target is more useful if you run the container with a specific name in detached mode.
-# Example: docker run -d --name mathpdfgen -p 8080:8080 $(FULL_IMAGE_NAME)
-# Then: make server-logs NAME=mathpdfgen
+# This target is more useful if you run the container with a specific name.
+# 'make run' now names the container 'math-pdf-gen-container'.
+# If run in detached mode (-d), use this target.
 server-logs:
-	@echo "Fetching logs for container $(NAME)..."
-	docker logs $(NAME)
+	@echo "Fetching logs for container math-pdf-gen-container..."
+	docker logs math-pdf-gen-container
 
 # Target to apply Kubernetes deployment
 k8s-apply: k8s-deploy.yaml

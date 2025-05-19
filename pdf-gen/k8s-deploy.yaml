@@ -16,19 +16,22 @@ spec:
     spec:
       containers:
       - name: math-homework-pdf-gen-container
-        image: zicongmei/math-homework-pdf-gen:latest # This uses the default IMAGE_REPO and IMAGE_TAG from Makefile
+        image: zicongmei/math-homework-pdf-gen:20250519-150126 # This uses the default IMAGE_REPO and IMAGE_TAG from Makefile. Consider using a DATETIME_TAG for specific versions.
+        imagePullPolicy: Always # Ensures the image is always pulled
         ports:
         - containerPort: 8080 # This is the CONTAINER_PORT from Makefile
-        # Optional: Add readiness and liveness probes if your application supports health check endpoints
+        # Optional: Add readiness and liveness probes.
+        # The '/' endpoint now serves PDFs. For a health check, you might need a dedicated endpoint (e.g., /health).
+        # If using probes with the current '/' endpoint, they will attempt to download a PDF.
         # readinessProbe:
         #   httpGet:
-        #     path: /health # Replace with your actual health check endpoint
+        #     path: / # Or a dedicated health check endpoint like /health
         #     port: 8080
         #   initialDelaySeconds: 15
         #   periodSeconds: 20
         # livenessProbe:
         #   httpGet:
-        #     path: /health # Replace with your actual health check endpoint
+        #     path: / # Or a dedicated health check endpoint like /health
         #     port: 8080
         #   initialDelaySeconds: 15
         #   periodSeconds: 20
