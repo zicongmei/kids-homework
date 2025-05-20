@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kids Math Homework Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="resources/add_sub.js" defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,10 +15,14 @@
             margin-top: 30px;
             background-color: #f4f4f4;
             color: #333;
+            padding-left: 15px; /* Add some padding for small screens */
+            padding-right: 15px; /* Add some padding for small screens */
+            box-sizing: border-box; /* Ensure padding doesn't add to width for 100% elements */
         }
 
         h1 {
             color: #4CAF50;
+            text-align: center; /* Ensure heading is centered */
         }
 
         .controls {
@@ -28,6 +31,11 @@
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            /* width: 550px; */ /* Removed fixed width */
+            max-width: 550px;   /* Set a maximum width for larger screens */
+            width: 100%;      /* Use 100% of parent's width (respecting body padding) */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
         }
 
         label,
@@ -35,12 +43,15 @@
         button {
             font-size: 16px;
             padding: 8px 12px;
-            margin: 8px;
+            margin: 8px 0; /* Adjust margin for better stacking on small screens */
             border-radius: 4px;
+            display: block; /* Make them block elements to stack vertically */
+            width: calc(100% - 24px); /* Full width minus padding */
+            box-sizing: border-box;
         }
-
+        
         input[type="number"] {
-            width: 60px;
+            /* width: 60px; */ /* Overridden by above block style */
             border: 1px solid #ccc;
         }
 
@@ -50,22 +61,62 @@
             border: none;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-top: 15px; /* Add more margin above buttons */
         }
 
         button:hover {
             background-color: #45a049;
         }
+
+        p {
+            text-align: center;
+            font-size: 14px; /* Slightly smaller font for description */
+            line-height: 1.4; /* Better readability for multi-line text */
+        }
+
+        /* Responsive adjustments for larger screens (e.g., tablets and desktops) */
+        @media (min-width: 480px) {
+            label,
+            input,
+            button {
+                display: inline-block; /* Align elements inline on larger screens */
+                width: auto; /* Reset width to auto for inline-block elements */
+                margin: 8px; /* Restore original margin for larger screens */
+            }
+
+            input[type="number"] {
+                width: 60px; /* Restore specific width for number input */
+            }
+        }
+
     </style>
 </head>
 
 <body>
     <h1>Math Homework Generator</h1>
+
     <div class="controls">
-        <label for="numPages">Number of Pages:</label>
-        <input type="number" id="numPages" value="1" min="1" max="20">
-        <button onclick="generateHomework()">Generate PDF</button>
+        <h2>Addition & Subtraction</h2>
+        <div>
+            <label for="numPagesAddSub">Number of Pages:</label>
+            <input type="number" id="numPagesAddSub" value="1" min="1" max="20">
+        </div>
+        <button onclick="generateHomework()">Generate Add/Sub PDF</button>
+        <p>Generates addition (sum < 100) and subtraction (no borrowing, result> 10, max 4 subtraction problems per
+                page).</p>
     </div>
-    <p>Generates a PDF with addition (sum < 100) and subtraction (no borrowing) problems.</p>
+
+    <div class="controls">
+        <h2>Multiplication</h2>
+        <div>
+            <label for="numPagesMultiply">Number of Pages:</label>
+            <input type="number" id="numPagesMultiply" value="1" min="1" max="20">
+        </div>
+        <button onclick="generateMultiplicationHomework()">Generate Multiplication PDF</button>
+        <p>Generates multiplication problems (2-digit by 1-digit, e.g., 45 × 3).</p>
+    </div>
+
+    <script src="resources/maths.js" defer></script>
 </body>
 
 </html>
