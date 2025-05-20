@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Math Homework Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="resources/add_sub.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        .controls {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label,
+        input,
+        button {
+            font-size: 16px;
+            padding: 8px 12px;
+            margin: 8px;
+            border-radius: 4px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Math Homework Generator</h1>
+    <div class="controls">
+        <label for="numPages">Number of Pages:</label>
+        <input type="number" id="numPages" value="1" min="1" max="20">
+        <button onclick="generateHomework()">Generate PDF</button>
+    </div>
+    <p>Generates a PDF with addition (sum < 100) and subtraction (no borrowing) problems.</p>
+</body>
+
+</html>
