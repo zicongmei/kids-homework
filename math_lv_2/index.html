@@ -107,13 +107,23 @@
     </div>
 
     <div class="controls">
-        <h2>Multiplication</h2>
+        <h2>Multiplication (Vertical)</h2>
         <div>
             <label for="numPagesMultiply">Number of Pages:</label>
             <input type="number" id="numPagesMultiply" value="1" min="1" max="20">
         </div>
         <button onclick="generateMultiplicationHomework()">Generate Multiplication PDF</button>
-        <p>Generates multiplication problems (2-digit by 1-digit, e.g., 45 × 3).</p>
+        <p>Generates multiplication problems (2-digit by 1-digit, e.g., 45 × 3) in vertical format.</p>
+    </div>
+
+    <div class="controls">
+        <h2>9x9 Multiplication Table</h2>
+        <div>
+            <label for="numPages9x9">Number of Pages:</label>
+            <input type="number" id="numPages9x9" value="1" min="1" max="20">
+        </div>
+        <button onclick="generate9x9Homework()">Generate 9x9 Table PDF</button>
+        <p>Generates all 81 9x9 multiplication table problems (1x1 to 9x9) in order, on a landscape page (e.g., 7 × 8 = ___).</p>
     </div>
 
     <script src="resources/maths.js" defer></script>
