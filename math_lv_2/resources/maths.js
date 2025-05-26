@@ -120,6 +120,13 @@ const LINE_SPACING = FONT_SIZE_PROBLEM * LINE_SPACING_FACTOR;
 const PROBLEM_PADDING_RIGHT = CELL_WIDTH_PT * 0.2; // Right padding within cell for problem alignment
 const OPERATOR_PADDING_LEFT = FONT_SIZE_PROBLEM * 0.5; // Padding left of operator
 
+// Specific constants for 9x9 layout (used in generate9x9Homework and generateMixedMultiplicationHomework)
+const FONT_SIZE_9X9 = 12;
+const NUM_COLS_9X9 = 9;
+const NUM_ROWS_9X9 = 9;
+const ANSWER_LINE_LENGTH_PT_9X9 = FONT_SIZE_9X9 * 2.0;
+
+
 console.log("[maths.js] PDF Layout Constants Initialized:", {
     PROBLEMS_PER_PAGE,
     NUM_COLS,
@@ -136,7 +143,11 @@ console.log("[maths.js] PDF Layout Constants Initialized:", {
     LINE_SPACING_FACTOR,
     LINE_SPACING,
     PROBLEM_PADDING_RIGHT,
-    OPERATOR_PADDING_LEFT
+    OPERATOR_PADDING_LEFT,
+    FONT_SIZE_9X9,
+    NUM_COLS_9X9,
+    NUM_ROWS_9X9,
+    ANSWER_LINE_LENGTH_PT_9X9
 });
 
 function generateHomework() {
@@ -374,23 +385,18 @@ function generate9x9Homework() {
     const PROBLEMS_TO_DISPLAY_ON_PAGE = all9x9Problems.length; // 81 problems
 
     // Layout constants for fitting 81 problems on a landscape page
-    const FONT_SIZE_9X9 = 12; // Adjusted Font size for "N x N ="
-    const ANSWER_LINE_LENGTH_PT = FONT_SIZE_9X9 * 2.0; // Adjusted Length of the blank line for the answer
-    
-    const NUM_COLS_9X9 = 9; // Number of columns for problems (9 columns)
-    const NUM_ROWS_9X9 = 9; // Number of rows for problems (9 rows)
-    // const NUM_ROWS_9X9 = Math.ceil(PROBLEMS_TO_DISPLAY_ON_PAGE / NUM_COLS_9X9); // This will be 81/9 = 9
-
-    const CELL_WIDTH_9X9 = CONTENT_WIDTH_LANDSCAPE_PT / NUM_COLS_9X9;
-    const ALLOCATED_ROW_HEIGHT_9X9 = CONTENT_HEIGHT_LANDSCAPE_PT / NUM_ROWS_9X9;
+    // FONT_SIZE_9X9 and ANSWER_LINE_LENGTH_PT_9X9 are global now
+    // NUM_COLS_9X9 and NUM_ROWS_9X9 are global now
+    const CELL_WIDTH_9X9_CALC = CONTENT_WIDTH_LANDSCAPE_PT / NUM_COLS_9X9;
+    const ALLOCATED_ROW_HEIGHT_9X9_CALC = CONTENT_HEIGHT_LANDSCAPE_PT / NUM_ROWS_9X9;
 
     console.log("[generate9x9Homework] Landscape Layout:", {
         EFFECTIVE_PAGE_WIDTH_PT, EFFECTIVE_PAGE_HEIGHT_PT,
         CONTENT_WIDTH_LANDSCAPE_PT, CONTENT_HEIGHT_LANDSCAPE_PT,
-        FONT_SIZE_9X9, ANSWER_LINE_LENGTH_PT,
+        FONT_SIZE_9X9, ANSWER_LINE_LENGTH_PT: ANSWER_LINE_LENGTH_PT_9X9,
         NUM_COLS_9X9, NUM_ROWS_9X9,
-        CELL_WIDTH_9X9: CELL_WIDTH_9X9.toFixed(2), 
-        ALLOCATED_ROW_HEIGHT_9X9: ALLOCATED_ROW_HEIGHT_9X9.toFixed(2)
+        CELL_WIDTH_9X9: CELL_WIDTH_9X9_CALC.toFixed(2), 
+        ALLOCATED_ROW_HEIGHT_9X9: ALLOCATED_ROW_HEIGHT_9X9_CALC.toFixed(2)
     });
 
     for (let p = 0; p < numPages; p++) {
@@ -408,39 +414,168 @@ function generate9x9Homework() {
 
             const problemText = `${problem.num1}${problem.operator}${problem.num2} = `; // MODIFIED: Reduced space around operator
             const problemTextWidth = doc.getTextWidth(problemText);
-            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT;
+            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
 
             const colIndex = i % NUM_COLS_9X9;
             const rowIndex = Math.floor(i / NUM_COLS_9X9);
 
             // Calculate X position: Start of cell + centering adjustment for the "problem = ___" block
-            const cellStartX = MARGIN_PT + (colIndex * CELL_WIDTH_9X9);
-            // The (CELL_WIDTH_9X9 - totalProblemBlockWidth) / 2 part will increase due to smaller totalProblemBlockWidth,
-            // thus increasing space on either side of the problem content within its cell, effectively spacing out problems.
-            const xPos = cellStartX + (CELL_WIDTH_9X9 - totalProblemBlockWidth) / 2;
+            const cellStartX = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_CALC);
+            const xPos = cellStartX + (CELL_WIDTH_9X9_CALC - totalProblemBlockWidth) / 2;
 
             // Calculate Y position for the text baseline (vertically centered in allocated row space)
-            const rowTopEdgeY = MARGIN_PT + (rowIndex * ALLOCATED_ROW_HEIGHT_9X9);
-            const yTextBaseline = rowTopEdgeY + (ALLOCATED_ROW_HEIGHT_9X9 / 2) + (FONT_SIZE_9X9 / 3.5); // Fine-tune divisor for vertical centering
-
-            // console.log(`[generate9x9Homework] Page ${p+1}, P${i+1} (r:${rowIndex},c:${colIndex}) -> x:${xPos.toFixed(2)}, y:${yTextBaseline.toFixed(2)}`);
+            const rowTopEdgeY = MARGIN_PT + (rowIndex * ALLOCATED_ROW_HEIGHT_9X9_CALC);
+            const yTextBaseline = rowTopEdgeY + (ALLOCATED_ROW_HEIGHT_9X9_CALC / 2) + (FONT_SIZE_9X9 / 3.5); // Fine-tune divisor for vertical centering
             
             doc.text(problemText, xPos, yTextBaseline);
 
             // Draw the line for the answer
             const lineStartX = xPos + problemTextWidth;
-            const lineEndX = lineStartX + ANSWER_LINE_LENGTH_PT;
+            const lineEndX = lineStartX + ANSWER_LINE_LENGTH_PT_9X9;
             const lineY = yTextBaseline + (FONT_SIZE_9X9 * 0.15); // Place line slightly below text baseline (adjust as needed)
             
             doc.setLineWidth(0.75);
             doc.line(lineStartX, lineY, lineEndX, lineY);
-            // console.log(`[generate9x9Homework] Line from (${lineStartX.toFixed(2)},${lineY.toFixed(2)}) to (${lineEndX.toFixed(2)},${lineY.toFixed(2)})`);
         }
         console.log(`[generate9x9Homework] Finished page ${p + 1}`);
     }
 
     doc.save('kids_9x9_multiplication_homework.pdf');
     console.log("[generate9x9Homework] PDF 'kids_9x9_multiplication_homework.pdf' saved. Exiting.");
+}
+
+
+function generateMixedMultiplicationHomework() {
+    console.log("[generateMixedMultiplicationHomework] Entry");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'l', // Default to landscape for the first page of the PDF
+        unit: 'pt',
+        format: 'letter'
+    });
+    console.log("[generateMixedMultiplicationHomework] jsPDF instance created in LANDSCAPE mode.");
+
+    const numSheetsInput = document.getElementById('numSheetsMixedMultiply');
+    const numSheets = parseInt(numSheetsInput.value) || 1;
+    console.log(`[generateMixedMultiplicationHomework] Number of sheets requested: ${numSheets}`);
+
+    doc.setFont('courier', 'normal');
+    console.log("[generateMixedMultiplicationHomework] Font set to courier.");
+
+    // Landscape page dimensions (used for both page types in this function)
+    // These are the dimensions of a 'letter' page in landscape.
+    const LANDSCAPE_PAGE_WIDTH_PT = PAGE_HEIGHT_PT; // Original Portrait Height becomes Landscape Width
+    const LANDSCAPE_PAGE_HEIGHT_PT = PAGE_WIDTH_PT;  // Original Portrait Width becomes Landscape Height
+    
+    const CONTENT_WIDTH_L_PT = LANDSCAPE_PAGE_WIDTH_PT - 2 * MARGIN_PT;
+    const CONTENT_HEIGHT_L_PT = LANDSCAPE_PAGE_HEIGHT_PT - 2 * MARGIN_PT;
+
+    for (let sheet = 0; sheet < numSheets; sheet++) {
+        console.log(`[generateMixedMultiplicationHomework] Starting sheet ${sheet + 1} of ${numSheets}`);
+
+        // --- Page 1: Vertical Multiplication (Landscape) ---
+        if (sheet > 0) { 
+            // Add a new landscape page if this is not the very first page of the PDF (sheet > 0)
+            doc.addPage({ orientation: 'l', format: 'letter' });
+            console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 1 (Vertical Mult)`);
+        }
+        // else, for sheet 0, page 1, use the initial landscape page created by new jsPDF().
+        
+        doc.setFontSize(FONT_SIZE_PROBLEM); // Font for vertical multiplication
+        console.log(`[generateMixedMultiplicationHomework] Generating page 1 (Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+
+        // Layout for Vertical Multiplication on Landscape page
+        const NUM_COLS_P1_L = 4; // 4 columns for vertical mult on landscape
+        const NUM_ROWS_P1_L = 3;   // 3 rows for vertical mult on landscape
+        const PROBLEMS_PER_PAGE_P1_L = NUM_COLS_P1_L * NUM_ROWS_P1_L; // 12 problems
+        
+        const CELL_WIDTH_P1_L = CONTENT_WIDTH_L_PT / NUM_COLS_P1_L;
+        const CELL_HEIGHT_P1_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_P1_L;
+
+        for (let i = 0; i < PROBLEMS_PER_PAGE_P1_L; i++) {
+            const problem = generateMultiplicationProblem();
+            const row = Math.floor(i / NUM_COLS_P1_L);
+            const col = i % NUM_COLS_P1_L;
+            
+            const cellX = MARGIN_PT + col * CELL_WIDTH_P1_L;
+            const cellY = MARGIN_PT + row * CELL_HEIGHT_P1_L;
+
+            const s_num1 = String(problem.num1);
+            const s_num2 = String(problem.num2);
+            // Using global PROBLEM_PADDING_RIGHT. This is a fixed value derived from portrait cell width.
+            // It should be visually acceptable as landscape cell width (CELL_WIDTH_P1_L) is similar.
+            const rightAlignX = cellX + CELL_WIDTH_P1_L - PROBLEM_PADDING_RIGHT;
+            const twoDigitWidth = doc.getTextWidth("99"); // Using current font size (FONT_SIZE_PROBLEM)
+            
+            // Vertical centering for 3 lines (num1, op+num2, -----) within CELL_HEIGHT_P1_L.
+            // LINE_SPACING is global, based on FONT_SIZE_PROBLEM.
+            let yPos = cellY + (CELL_HEIGHT_P1_L - (3 * LINE_SPACING)) / 2 + LINE_SPACING;
+            
+            doc.text(s_num1, rightAlignX, yPos, { align: 'right' });
+            yPos += LINE_SPACING;
+            doc.text(s_num2, rightAlignX, yPos, { align: 'right' });
+            // Using global OPERATOR_PADDING_LEFT, based on FONT_SIZE_PROBLEM.
+            const operatorXPos = rightAlignX - twoDigitWidth - OPERATOR_PADDING_LEFT;
+            doc.text(problem.operator, operatorXPos, yPos);
+            
+            const lineYPos = yPos + FONT_SIZE_PROBLEM * 0.3;
+            doc.setLineWidth(0.75);
+            const linePaddingLeftOfOperator = FONT_SIZE_PROBLEM * 0.2; 
+            const lineStartX = operatorXPos - linePaddingLeftOfOperator;
+            doc.line(lineStartX, lineYPos, rightAlignX, lineYPos);
+        }
+        console.log(`[generateMixedMultiplicationHomework] Finished page 1 (Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+
+        // --- Page 2: 9x9 Multiplication Table (Landscape) ---
+        // This page will always be added, thus it's always a new page after page 1.
+        doc.addPage({ orientation: 'l', format: 'letter' });
+        console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
+        doc.setFontSize(FONT_SIZE_9X9); // Set font size for 9x9 table
+        console.log(`[generateMixedMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+
+        // Landscape page dimensions (CONTENT_WIDTH_L_PT, CONTENT_HEIGHT_L_PT) are already defined.
+        // Global constants for 9x9 layout: NUM_COLS_9X9, NUM_ROWS_9X9, FONT_SIZE_9X9, ANSWER_LINE_LENGTH_PT_9X9.
+
+        let all9x9ProblemsPage2 = []; // Use a distinct name for local variable
+        for (let r = 1; r <= 9; r++) {
+            for (let c = 1; c <= 9; c++) {
+                all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+            }
+        }
+        const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
+
+        const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
+        const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
+
+        for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
+            const problem = all9x9ProblemsPage2[i];
+            const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
+            const problemTextWidth = doc.getTextWidth(problemText); // Using current font size (FONT_SIZE_9X9)
+            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
+
+            const colIndex = i % NUM_COLS_9X9;
+            const rowIndex = Math.floor(i / NUM_COLS_9X9);
+
+            const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
+            const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
+            
+            const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
+            const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
+            
+            doc.text(problemText, xPos_L, yTextBaseline_L);
+
+            const lineStartX_9x9 = xPos_L + problemTextWidth;
+            const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
+            const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
+            
+            doc.setLineWidth(0.75);
+            doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
+        }
+        console.log(`[generateMixedMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+    }
+
+    doc.save('kids_mixed_multiplication_homework.pdf');
+    console.log("[generateMixedMultiplicationHomework] PDF 'kids_mixed_multiplication_homework.pdf' saved. Exiting.");
 }
 
 
