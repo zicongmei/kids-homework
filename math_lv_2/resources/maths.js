@@ -27,41 +27,60 @@ function generateAdditionProblem() {
     return problem;
 }
 
-// Generates a subtraction problem num1 - num2 where num1 >= num2,
-// no borrowing is needed, the result is > 10, and operands are >= 1.
-// num1 is 12-99. num2 is 1 to num1 (no borrow).
-function generateSubtractionProblem() {
-    console.log("[generateSubtractionProblem] Entry");
+// Generates a subtraction problem num1 - num2 where num1 > num2 (result > 0)
+// and no borrowing is needed. Operands are >= 1.
+// num1 is 10-99. num2 is generated to meet conditions.
+function generateSubtractionProblemNoBorrowing() {
+    console.log("[generateSubtractionProblemNoBorrowing] Entry");
     let num1, num2, num1_ones, num1_tens, num2_ones, num2_tens;
     let attempts = 0;
 
     do {
         attempts++;
-        // num1 must be at least 12 to potentially satisfy (num1 - num2 > 10) when num2 >= 1.
-        // If num1 = 11, max (num1 - num2) with num2 >= 1 is (11 - 1) = 10. Not > 10.
-        // So num1 must be >= 12. This also satisfies num1 >= 1.
-        num1 = Math.floor(Math.random() * (99 - 12 + 1)) + 12; // Generates num1 from 12 to 99.
+        // num1 from 10 to 99 to ensure it's a 2-digit number for meaningful tens/ones separation
+        num1 = Math.floor(Math.random() * 90) + 10; // 10-99
 
         num1_ones = num1 % 10;
         num1_tens = Math.floor(num1 / 10);
 
         // Generate num2 digits such that they are less than or equal to num1's digits
-        // This ensures num1 >= num2 and no borrowing.
+        // This inherently ensures num1 >= num2 and no borrowing.
         num2_ones = Math.floor(Math.random() * (num1_ones + 1)); // 0 to num1_ones
         num2_tens = Math.floor(Math.random() * (num1_tens + 1)); // 0 to num1_tens
 
         num2 = num2_tens * 10 + num2_ones;
         
-        if ((num1 - num2) <= 10 || num2 < 1) {
-            console.log(`[generateSubtractionProblem] Retry ${attempts}: num1=${num1}, num2=${num2}. Condition not met: result > 10 (${num1 - num2 > 10}), num2 >= 1 (${num2 >= 1})`);
-        }
+        // Loop until num1 > num2 (result > 0) AND num2 is at least 1.
+        // If num1 = num2 or num2 = 0, problem is not valid for this type.
+    } while (num1 <= num2 || num2 < 1); 
 
-    // Loop until result is greater than 10 (i.e. num1 - num2 >= 11) AND num2 is at least 1.
-    } while ((num1 - num2) <= 10 || num2 < 1); 
-
-    console.log(`[generateSubtractionProblem] Generated after ${attempts} attempts: num1=${num1}, num2=${num2}`);
+    console.log(`[generateSubtractionProblemNoBorrowing] Generated after ${attempts} attempts: num1=${num1}, num2=${num2}, result=${num1-num2}`);
     const problem = { num1, num2, operator: '-' };
-    console.log("[generateSubtractionProblem] Returning problem:", problem);
+    console.log("[generateSubtractionProblemNoBorrowing] Returning problem:", problem);
+    return problem;
+}
+
+// Generates a subtraction problem num1 - num2 where num1 > num2 (result > 0)
+// and borrowing is needed from the tens place. Operands are >= 1.
+// num1 is 10-99. num2 is 1-99.
+function generateSubtractionProblemWithBorrowing() {
+    console.log("[generateSubtractionProblemWithBorrowing] Entry");
+    let num1, num2;
+    let attempts = 0;
+
+    do {
+        attempts++;
+        num1 = Math.floor(Math.random() * 90) + 10; // 10-99
+        num2 = Math.floor(Math.random() * 99) + 1;  // 1-99
+
+        // Conditions to satisfy:
+        // 1. Result is greater than 0: num1 > num2
+        // 2. Borrowing is required from the ones place: num1's ones digit < num2's ones digit
+    } while (num1 <= num2 || (num1 % 10) >= (num2 % 10)); // Keep generating until both conditions met
+
+    console.log(`[generateSubtractionProblemWithBorrowing] Generated after ${attempts} attempts: num1=${num1}, num2=${num2}, result=${num1-num2}`);
+    const problem = { num1, num2, operator: '-' };
+    console.log("[generateSubtractionProblemWithBorrowing] Returning problem:", problem);
     return problem;
 }
 
@@ -75,6 +94,19 @@ function generateMultiplicationProblem() {
     console.log(`[generateMultiplicationProblem] Generated num2: ${num2}`);
     const problem = { num1, num2, operator: '×' }; // Using '×' (multiplication sign)
     console.log("[generateMultiplicationProblem] Returning problem:", problem);
+    return problem;
+}
+
+// Generates a multiplication problem: 2-digit number * 2-digit number.
+// num1 (2-digit) is 10-99. num2 (2-digit) is 10-99.
+function generateTwoDigitByTwoDigitMultiplicationProblem() {
+    console.log("[generateTwoDigitByTwoDigitMultiplicationProblem] Entry");
+    const num1 = Math.floor(Math.random() * 90) + 10; // 10-99
+    console.log(`[generateTwoDigitByTwoDigitMultiplicationProblem] Generated num1: ${num1}`);
+    const num2 = Math.floor(Math.random() * 90) + 10; // 10-99
+    console.log(`[generateTwoDigitByTwoDigitMultiplicationProblem] Generated num2: ${num2}`);
+    const problem = { num1, num2, operator: '×' };
+    console.log("[generateTwoDigitByTwoDigitMultiplicationProblem] Returning problem:", problem);
     return problem;
 }
 
@@ -97,7 +129,6 @@ function generate9x9MultiplicationProblem() {
 const PROBLEMS_PER_PAGE = 12; // For Add/Sub and 2-digit x 1-digit Multiply
 const NUM_COLS = 3; // For Add/Sub and 2-digit x 1-digit Multiply
 const NUM_ROWS = 4; // For Add/Sub and 2-digit x 1-digit Multiply
-const MAX_SUBTRACTION_PROBLEMS_PER_PAGE = 4;
 
 // Letter paper dimensions in points (1 inch = 72 points)
 // These are for PORTRAIT orientation
@@ -131,7 +162,6 @@ console.log("[maths.js] PDF Layout Constants Initialized:", {
     PROBLEMS_PER_PAGE,
     NUM_COLS,
     NUM_ROWS,
-    MAX_SUBTRACTION_PROBLEMS_PER_PAGE,
     PAGE_WIDTH_PT,
     PAGE_HEIGHT_PT,
     MARGIN_PT,
@@ -160,9 +190,41 @@ function generateHomework() {
     });
     console.log("[generateHomework] jsPDF instance created.");
 
-    const numPagesInput = document.getElementById('numPagesAddSub'); // Changed ID
+    const numPagesInput = document.getElementById('numPagesAddSub');
     const numPages = parseInt(numPagesInput.value) || 1;
     console.log(`[generateHomework] Number of pages requested: ${numPages}`);
+
+    // Get new input values for subtraction types
+    const requestedNoBorrow = parseInt(document.getElementById('numSubNoBorrowPerPage').value) || 0;
+    const requestedWithBorrow = parseInt(document.getElementById('numSubWithBorrowPerPage').value) || 0;
+    
+    // Determine the actual number of each problem type per page
+    let actualNoBorrowPerPage = Math.max(0, requestedNoBorrow);
+    let actualWithBorrowPerPage = Math.max(0, requestedWithBorrow);
+
+    const totalSubProblemsRequested = actualNoBorrowPerPage + actualWithBorrowPerPage;
+    
+    // If total requested subtraction problems exceed available slots, cap them.
+    if (totalSubProblemsRequested > PROBLEMS_PER_PAGE) {
+        if (actualNoBorrowPerPage > 0 && actualWithBorrowPerPage > 0) {
+            // If both types are requested, distribute proportionally
+            const ratioNoBorrow = actualNoBorrowPerPage / totalSubProblemsRequested;
+            actualNoBorrowPerPage = Math.floor(PROBLEMS_PER_PAGE * ratioNoBorrow);
+            actualWithBorrowPerPage = PROBLEMS_PER_PAGE - actualNoBorrowPerPage; // Fill remaining slots
+        } else if (actualNoBorrowPerPage > 0) {
+            actualNoBorrowPerPage = PROBLEMS_PER_PAGE; // Only no-borrow requested, take all slots
+            actualWithBorrowPerPage = 0;
+        } else if (actualWithBorrowPerPage > 0) {
+            actualWithBorrowPerPage = PROBLEMS_PER_PAGE; // Only with-borrow requested, take all slots
+            actualNoBorrowPerPage = 0;
+        }
+    }
+    
+    let actualAddPerPage = PROBLEMS_PER_PAGE - actualNoBorrowPerPage - actualWithBorrowPerPage;
+    // Ensure actualAddPerPage is not negative due to unexpected edge cases, though it should be handled above.
+    actualAddPerPage = Math.max(0, actualAddPerPage);
+
+    console.log(`[generateHomework] Problems per page distribution: Add=${actualAddPerPage}, Sub No Borrow=${actualNoBorrowPerPage}, Sub With Borrow=${actualWithBorrowPerPage}`);
 
     doc.setFont('courier', 'normal'); // Monospaced font for good alignment
     console.log("[generateHomework] Font set to courier.");
@@ -173,32 +235,42 @@ function generateHomework() {
             doc.addPage();
             console.log(`[generateHomework] Added new page ${p + 1}`);
         }
-        let subtractionProblemCountThisPage = 0; // Reset for each page
-        console.log(`[generateHomework] Initial subtractionProblemCountThisPage for page ${p + 1}: ${subtractionProblemCountThisPage}`);
         
         doc.setFontSize(FONT_SIZE_PROBLEM); // Reset font size for problems
+
+        // Prepare the list of problem types for this page
+        let problemTypesForPage = [];
+        for (let k = 0; k < actualAddPerPage; k++) problemTypesForPage.push('add');
+        for (let k = 0; k < actualNoBorrowPerPage; k++) problemTypesForPage.push('sub_no_borrow');
+        for (let k = 0; k < actualWithBorrowPerPage; k++) problemTypesForPage.push('sub_with_borrow');
+
+        // Shuffle the array to randomize problem order on the page
+        for (let i = problemTypesForPage.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [problemTypesForPage[i], problemTypesForPage[j]] = [problemTypesForPage[j], problemTypesForPage[i]];
+        }
+        console.log("[generateHomework] Shuffled problem types for page:", problemTypesForPage);
 
         for (let i = 0; i < PROBLEMS_PER_PAGE; i++) {
             console.log(`[generateHomework] Page ${p + 1}, Problem ${i + 1}`);
             let problem;
+            const problemType = problemTypesForPage[i];
 
-            if (subtractionProblemCountThisPage < MAX_SUBTRACTION_PROBLEMS_PER_PAGE) {
-                // Limit not reached, 50/50 chance for addition or subtraction
-                if (Math.random() < 0.5) { // 50% chance for addition
-                    console.log(`[generateHomework] Generating addition problem (subtraction count: ${subtractionProblemCountThisPage})`);
+            switch (problemType) {
+                case 'add':
                     problem = generateAdditionProblem();
-                } else { // 50% chance for subtraction
-                    console.log(`[generateHomework] Generating subtraction problem (subtraction count: ${subtractionProblemCountThisPage})`);
-                    problem = generateSubtractionProblem();
-                    subtractionProblemCountThisPage++;
-                    console.log(`[generateHomework] Incremented subtractionProblemCountThisPage to: ${subtractionProblemCountThisPage}`);
-                }
-            } else {
-                // Subtraction limit reached, force addition
-                console.log(`[generateHomework] Subtraction limit reached (${subtractionProblemCountThisPage}), forcing addition problem.`);
-                problem = generateAdditionProblem();
+                    break;
+                case 'sub_no_borrow':
+                    problem = generateSubtractionProblemNoBorrowing();
+                    break;
+                case 'sub_with_borrow':
+                    problem = generateSubtractionProblemWithBorrowing();
+                    break;
+                default:
+                    console.error("Unknown problem type:", problemType);
+                    problem = generateAdditionProblem(); // Fallback to addition if type is unknown
             }
-            console.log(`[generateHomework] Problem ${i + 1}: ${problem.num1} ${problem.operator} ${problem.num2}`);
+            console.log(`[generateHomework] Problem ${i + 1} (${problemType}): ${problem.num1} ${problem.operator} ${problem.num2}`);
 
             const row = Math.floor(i / NUM_COLS);
             const col = i % NUM_COLS;
@@ -331,7 +403,7 @@ function generateMultiplicationHomework() {
             doc.text(problem.operator, operatorXPos, yPos); 
 
             // Y-coordinate for the horizontal line below num2
-            const lineYPos = yPos + FONT_SIZE_PROBLEM * 0.3; // Small gap below baseline of num2
+            const lineYPos = yPos + FONT_SIZE_PROBLEM * 0.3; 
             
             doc.setLineWidth(0.75); // Line thickness
             
@@ -500,8 +572,8 @@ function generateMixedMultiplicationHomework() {
             const cellX = MARGIN_PT + col * CELL_WIDTH_P1_L;
             const cellY = MARGIN_PT + row * CELL_HEIGHT_P1_L;
 
-            const s_num1 = String(problem.num1);
-            const s_num2 = String(problem.num2);
+            const s_num1 = String(problem.num1); // This will be the 2-digit number
+            const s_num2 = String(problem.num2); // This will be the 1-digit number
             // Using global PROBLEM_PADDING_RIGHT. This is a fixed value derived from portrait cell width.
             // It should be visually acceptable as landscape cell width (CELL_WIDTH_P1_L) is similar.
             const rightAlignX = cellX + CELL_WIDTH_P1_L - PROBLEM_PADDING_RIGHT;
@@ -578,5 +650,131 @@ function generateMixedMultiplicationHomework() {
     console.log("[generateMixedMultiplicationHomework] PDF 'kids_mixed_multiplication_homework.pdf' saved. Exiting.");
 }
 
+
+// New function for 2-digit by 2-digit multiplication with 9x9 table on back
+function generateTwoDigitMultiplicationHomework() {
+    console.log("[generateTwoDigitMultiplicationHomework] Entry");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'l', // Default to landscape for consistency in duplex printing
+        unit: 'pt',
+        format: 'letter'
+    });
+    console.log("[generateTwoDigitMultiplicationHomework] jsPDF instance created in LANDSCAPE mode.");
+
+    const numSheetsInput = document.getElementById('numSheetsTwoDigitMultiply'); // New ID for input
+    const numSheets = parseInt(numSheetsInput.value) || 1;
+    console.log(`[generateTwoDigitMultiplicationHomework] Number of sheets requested: ${numSheets}`);
+
+    doc.setFont('courier', 'normal');
+    console.log("[generateTwoDigitMultiplicationHomework] Font set to courier.");
+
+    // Landscape page dimensions (used for both page types in this function)
+    const LANDSCAPE_PAGE_WIDTH_PT = PAGE_HEIGHT_PT; // Original Portrait Height becomes Landscape Width
+    const LANDSCAPE_PAGE_HEIGHT_PT = PAGE_WIDTH_PT;  // Original Portrait Width becomes Landscape Height
+    
+    const CONTENT_WIDTH_L_PT = LANDSCAPE_PAGE_WIDTH_PT - 2 * MARGIN_PT;
+    const CONTENT_HEIGHT_L_PT = LANDSCAPE_PAGE_HEIGHT_PT - 2 * MARGIN_PT;
+
+    for (let sheet = 0; sheet < numSheets; sheet++) {
+        console.log(`[generateTwoDigitMultiplicationHomework] Starting sheet ${sheet + 1} of ${numSheets}`);
+
+        // --- Page 1: 2-Digit by 2-Digit Vertical Multiplication (Landscape) ---
+        if (sheet > 0) { 
+            doc.addPage({ orientation: 'l', format: 'letter' });
+            console.log(`[generateTwoDigitMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 1 (2x2 Vertical Mult)`);
+        }
+        
+        doc.setFontSize(FONT_SIZE_PROBLEM); 
+        console.log(`[generateTwoDigitMultiplicationHomework] Generating page 1 (2x2 Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+
+        // Layout for 2-Digit by 2-Digit Vertical Multiplication on Landscape page
+        const NUM_COLS_P1_L_2x2 = 4; // Changed from 3 to 4 columns for 8 problems
+        const NUM_ROWS_P1_L_2x2 = 2; // 2 rows for 8 problems
+        const PROBLEMS_PER_PAGE_P1_L_2x2 = NUM_COLS_P1_L_2x2 * NUM_ROWS_P1_L_2x2; // 8 problems
+        
+        const CELL_WIDTH_P1_L_2x2 = CONTENT_WIDTH_L_PT / NUM_COLS_P1_L_2x2;
+        const CELL_HEIGHT_P1_L_2x2 = CONTENT_HEIGHT_L_PT / NUM_ROWS_P1_L_2x2;
+
+        for (let i = 0; i < PROBLEMS_PER_PAGE_P1_L_2x2; i++) {
+            const problem = generateTwoDigitByTwoDigitMultiplicationProblem(); // Generate new type of problem
+            const row = Math.floor(i / NUM_COLS_P1_L_2x2);
+            const col = i % NUM_COLS_P1_L_2x2;
+            
+            const cellX = MARGIN_PT + col * CELL_WIDTH_P1_L_2x2;
+            const cellY = MARGIN_PT + row * CELL_HEIGHT_P1_L_2x2;
+
+            const s_num1 = String(problem.num1);
+            const s_num2 = String(problem.num2);
+            
+            const rightAlignX = cellX + CELL_WIDTH_P1_L_2x2 - PROBLEM_PADDING_RIGHT;
+            const twoDigitWidth = doc.getTextWidth("99"); 
+            
+            // Move problems to the upper part of the cell by adjusting the initial y-position
+            // Original: let yPos = cellY + LINE_SPACING * 1.5; 
+            let yPos = cellY + FONT_SIZE_PROBLEM * 0.75; // Adjusted to move problems higher
+            
+            doc.text(s_num1, rightAlignX, yPos, { align: 'right' });
+            yPos += LINE_SPACING;
+            doc.text(s_num2, rightAlignX, yPos, { align: 'right' });
+            
+            const operatorXPos = rightAlignX - twoDigitWidth - OPERATOR_PADDING_LEFT;
+            doc.text(problem.operator, operatorXPos, yPos);
+            
+            const lineYPos = yPos + FONT_SIZE_PROBLEM * 0.3;
+            doc.setLineWidth(0.75);
+            const linePaddingLeftOfOperator = FONT_SIZE_PROBLEM * 0.2; 
+            const lineStartX = operatorXPos - linePaddingLeftOfOperator;
+            doc.line(lineStartX, lineYPos, rightAlignX, lineYPos);
+        }
+        console.log(`[generateTwoDigitMultiplicationHomework] Finished page 1 (2x2 Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+
+        // --- Page 2: 9x9 Multiplication Table (Landscape) ---
+        doc.addPage({ orientation: 'l', format: 'letter' });
+        console.log(`[generateTwoDigitMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
+        doc.setFontSize(FONT_SIZE_9X9); 
+        console.log(`[generateTwoDigitMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+
+        let all9x9ProblemsPage2 = []; 
+        for (let r = 1; r <= 9; r++) {
+            for (let c = 1; c <= 9; c++) {
+                all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+            }
+        }
+        const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
+
+        const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
+        const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
+
+        for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
+            const problem = all9x9ProblemsPage2[i];
+            const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
+            const problemTextWidth = doc.getTextWidth(problemText); 
+            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
+
+            const colIndex = i % NUM_COLS_9X9;
+            const rowIndex = Math.floor(i / NUM_COLS_9X9);
+
+            const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
+            const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
+            
+            const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
+            const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
+            
+            doc.text(problemText, xPos_L, yTextBaseline_L);
+
+            const lineStartX_9x9 = xPos_L + problemTextWidth;
+            const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
+            const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
+            
+            doc.setLineWidth(0.75);
+            doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
+        }
+        console.log(`[generateTwoDigitMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+    }
+
+    doc.save('kids_two_digit_multiplication_homework.pdf'); // New filename for this specific homework type
+    console.log("[generateTwoDigitMultiplicationHomework] PDF 'kids_two_digit_multiplication_homework.pdf' saved. Exiting.");
+}
 
 console.log("[maths.js] Script fully loaded and functions defined.");

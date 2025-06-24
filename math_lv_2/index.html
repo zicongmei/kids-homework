@@ -101,9 +101,16 @@
             <label for="numPagesAddSub">Number of Pages:</label>
             <input type="number" id="numPagesAddSub" value="1" min="1" max="20">
         </div>
+        <div>
+            <label for="numSubNoBorrowPerPage">Subtraction (No Borrowing) per page:</label>
+            <input type="number" id="numSubNoBorrowPerPage" value="3" min="0" max="12">
+        </div>
+        <div>
+            <label for="numSubWithBorrowPerPage">Subtraction (With Borrowing) per page:</label>
+            <input type="number" id="numSubWithBorrowPerPage" value="3" min="0" max="12">
+        </div>
         <button onclick="generateHomework()">Generate Add/Sub PDF</button>
-        <p>Generates addition (sum < 100) and subtraction (no borrowing, result> 10, max 4 subtraction problems per
-                page).</p>
+        <p>Generates addition (sum < 100) and subtraction (result > 0) problems. You can specify how many no-borrowing and with-borrowing subtraction questions appear per page. The total problems per page is 12.</p>
     </div>
 
     <div class="controls">
@@ -114,6 +121,16 @@
         </div>
         <button onclick="generateMixedMultiplicationHomework()">Generate Mixed Multiplication PDF</button>
         <p>For each sheet, creates 2 landscape pages: Page 1 is 2-digit by 1-digit multiplication (vertical), Page 2 is the 9x9 multiplication table.</p>
+    </div>
+
+    <div class="controls">
+        <h2>2-Digit by 2-Digit Multiplication</h2>
+        <div>
+            <label for="numSheetsTwoDigitMultiply">Number of Sheets:</label>
+            <input type="number" id="numSheetsTwoDigitMultiply" value="1" min="1" max="10">
+        </div>
+        <button onclick="generateTwoDigitMultiplicationHomework()">Generate 2x2 Multiplication PDF</button>
+        <p>For each sheet, creates 2 landscape pages: Page 1 is eight 2-digit by 2-digit multiplication problems (vertical format), Page 2 is the 9x9 multiplication table.</p>
     </div>
 
     <div class="controls">
