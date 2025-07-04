@@ -93,9 +93,11 @@ function generateSubtraction10to19WithBorrowing() {
     do {
         attempts++;
         // num1 between 10 and 19 (inclusive)
-        num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+        //num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+        num1 = Math.floor(Math.random() * 5) + 10; // 10-19
         // num2 a 1-digit number (1-9)
-        num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+        //num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+        num2 = Math.floor(Math.random() * 5) + 1; // 1-9
 
         // Conditions to satisfy:
         // 1. Result is greater than 0: num1 > num2
