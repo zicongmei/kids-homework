@@ -109,8 +109,12 @@
             <label for="numSubWithBorrowPerPage">Subtraction (With Borrowing) per page:</label>
             <input type="number" id="numSubWithBorrowPerPage" value="3" min="0" max="12">
         </div>
+        <div>
+            <label for="numSub10to19BorrowPerPage">Subtraction (10-19 minus 1-digit, Borrow) per page:</label>
+            <input type="number" id="numSub10to19BorrowPerPage" value="3" min="0" max="12">
+        </div>
         <button onclick="generateHomework()">Generate Add/Sub PDF</button>
-        <p>Generates addition (sum < 100) and subtraction (result > 0) problems. You can specify how many no-borrowing and with-borrowing subtraction questions appear per page. The total problems per page is 12.</p>
+        <p>Generates addition (sum < 100) and subtraction (result > 0) problems. You can specify how many no-borrowing, with-borrowing, and 10-19 minus 1-digit with borrowing subtraction questions appear per page. The total problems per page is 12.</p>
     </div>
 
     <div class="controls">

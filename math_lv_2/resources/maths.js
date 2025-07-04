@@ -84,6 +84,30 @@ function generateSubtractionProblemWithBorrowing() {
     return problem;
 }
 
+// Generates a subtraction problem: 2-digit number (10-19) minus a 1-digit number with borrowing.
+function generateSubtraction10to19WithBorrowing() {
+    console.log("[generateSubtraction10to19WithBorrowing] Entry");
+    let num1, num2;
+    let attempts = 0;
+
+    do {
+        attempts++;
+        // num1 between 10 and 19 (inclusive)
+        num1 = Math.floor(Math.random() * 10) + 10; // 10-19
+        // num2 a 1-digit number (1-9)
+        num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+
+        // Conditions to satisfy:
+        // 1. Result is greater than 0: num1 > num2
+        // 2. Borrowing is required from the ones place: num1's ones digit < num2
+    } while (num1 <= num2 || (num1 % 10) >= num2); // Keep generating until both conditions met
+
+    console.log(`[generateSubtraction10to19WithBorrowing] Generated after ${attempts} attempts: num1=${num1}, num2=${num2}, result=${num1-num2}`);
+    const problem = { num1, num2, operator: '-' };
+    console.log("[generateSubtraction10to19WithBorrowing] Returning problem:", problem);
+    return problem;
+}
+
 // Generates a multiplication problem: 2-digit number * 1-digit number.
 // num1 (2-digit) is 10-99. num2 (1-digit) is 2-9.
 function generateMultiplicationProblem() {
@@ -197,34 +221,84 @@ function generateHomework() {
     // Get new input values for subtraction types
     const requestedNoBorrow = parseInt(document.getElementById('numSubNoBorrowPerPage').value) || 0;
     const requestedWithBorrow = parseInt(document.getElementById('numSubWithBorrowPerPage').value) || 0;
-    
-    // Determine the actual number of each problem type per page
-    let actualNoBorrowPerPage = Math.max(0, requestedNoBorrow);
-    let actualWithBorrowPerPage = Math.max(0, requestedWithBorrow);
+    const requestedSub10to19Borrow = parseInt(document.getElementById('numSub10to19BorrowPerPage').value) || 0; // NEW INPUT
 
-    const totalSubProblemsRequested = actualNoBorrowPerPage + actualWithBorrowPerPage;
-    
-    // If total requested subtraction problems exceed available slots, cap them.
-    if (totalSubProblemsRequested > PROBLEMS_PER_PAGE) {
-        if (actualNoBorrowPerPage > 0 && actualWithBorrowPerPage > 0) {
-            // If both types are requested, distribute proportionally
-            const ratioNoBorrow = actualNoBorrowPerPage / totalSubProblemsRequested;
-            actualNoBorrowPerPage = Math.floor(PROBLEMS_PER_PAGE * ratioNoBorrow);
-            actualWithBorrowPerPage = PROBLEMS_PER_PAGE - actualNoBorrowPerPage; // Fill remaining slots
-        } else if (actualNoBorrowPerPage > 0) {
-            actualNoBorrowPerPage = PROBLEMS_PER_PAGE; // Only no-borrow requested, take all slots
-            actualWithBorrowPerPage = 0;
-        } else if (actualWithBorrowPerPage > 0) {
-            actualWithBorrowPerPage = PROBLEMS_PER_PAGE; // Only with-borrow requested, take all slots
-            actualNoBorrowPerPage = 0;
+    let actualNoBorrowPerPage, actualWithBorrowPerPage, actualSub10to19BorrowPerPage, actualAddPerPage;
+
+    const totalRequestedSub = requestedNoBorrow + requestedWithBorrow + requestedSub10to19Borrow;
+
+    if (totalRequestedSub > PROBLEMS_PER_PAGE) {
+        // Distribute proportionally based on requested counts
+        const ratios = {
+            noBorrow: requestedNoBorrow / totalRequestedSub,
+            withBorrow: requestedWithBorrow / totalRequestedSub,
+            sub10to19Borrow: requestedSub10to19Borrow / totalRequestedSub
+        };
+
+        actualNoBorrowPerPage = Math.round(PROBLEMS_PER_PAGE * ratios.noBorrow);
+        actualWithBorrowPerPage = Math.round(PROBLEMS_PER_PAGE * ratios.withBorrow);
+        actualSub10to19BorrowPerPage = Math.round(PROBLEPS_PER_PAGE * ratios.sub10to19Borrow);
+
+        // Adjust for rounding errors to ensure sum is exactly PROBLEMS_PER_PAGE (for subtraction types)
+        let currentSubTotal = actualNoBorrowPerPage + actualWithBorrowPerPage + actualSub10to19BorrowPerPage;
+        let diff = PROBLEMS_PER_PAGE - currentSubTotal;
+
+        const types = [
+            { name: 'noBorrow', count: actualNoBorrowPerPage, requested: requestedNoBorrow },
+            { name: 'withBorrow', count: actualWithBorrowPerPage, requested: requestedWithBorrow },
+            { name: 'sub10to19Borrow', count: actualSub10to19BorrowPerPage, requested: requestedSub10to19Borrow }
+        ];
+
+        // Sort by requested count descending to prioritize larger categories for adjustments
+        types.sort((a, b) => b.requested - a.requested);
+
+        while (diff !== 0) {
+            let adjustedInPass = false;
+            for (let i = 0; i < types.length; i++) {
+                // To avoid infinite loops and ensure distribution
+                // Apply changes, respecting actual requested numbers as a soft cap (or for distribution fairness)
+                if (diff > 0) { // Need to add problems
+                    types[i].count++;
+                    diff--;
+                    adjustedInPass = true;
+                } else if (diff < 0) { // Need to remove problems
+                    if (types[i].count > 0) { // Only remove if count is positive
+                        types[i].count--;
+                        diff++;
+                        adjustedInPass = true;
+                    }
+                }
+                if (diff === 0) break;
+            }
+            if (!adjustedInPass && diff !== 0) {
+                // Fallback: If no types can be adjusted further (e.g., all at 0 or maxed out if we were capping), break
+                // This scenario should be rare with proper `PROBLEMS_PER_PAGE` and rounding logic.
+                console.warn("Could not perfectly distribute subtraction problems due to rounding constraints.");
+                break;
+            }
         }
-    }
-    
-    let actualAddPerPage = PROBLEMS_PER_PAGE - actualNoBorrowPerPage - actualWithBorrowPerPage;
-    // Ensure actualAddPerPage is not negative due to unexpected edge cases, though it should be handled above.
-    actualAddPerPage = Math.max(0, actualAddPerPage);
 
-    console.log(`[generateHomework] Problems per page distribution: Add=${actualAddPerPage}, Sub No Borrow=${actualNoBorrowPerPage}, Sub With Borrow=${actualWithBorrowPerPage}`);
+        actualNoBorrowPerPage = types.find(t => t.name === 'noBorrow').count;
+        actualWithBorrowPerPage = types.find(t => t.name === 'withBorrow').count;
+        actualSub10to19BorrowPerPage = types.find(t => t.name === 'sub10to19Borrow').count;
+
+    } else {
+        // If total requested subtraction problems are within limits or less, use requested values directly
+        actualNoBorrowPerPage = requestedNoBorrow;
+        actualWithBorrowPerPage = requestedWithBorrow;
+        actualSub10to19BorrowPerPage = requestedSub10to19Borrow;
+    }
+
+    // Ensure all actual counts are non-negative after all adjustments
+    actualNoBorrowPerPage = Math.max(0, actualNoBorrowPerPage);
+    actualWithBorrowPerPage = Math.max(0, actualWithBorrowPerPage);
+    actualSub10to19BorrowPerPage = Math.max(0, actualSub10to19BorrowPerPage);
+
+    // Remaining slots go to addition
+    actualAddPerPage = PROBLEMS_PER_PAGE - (actualNoBorrowPerPage + actualWithBorrowPerPage + actualSub10to19BorrowPerPage);
+    actualAddPerPage = Math.max(0, actualAddPerPage); // Ensure not negative
+
+    console.log(`[generateHomework] Problems per page distribution: Add=${actualAddPerPage}, Sub No Borrow=${actualNoBorrowPerPage}, Sub With Borrow=${actualWithBorrowPerPage}, Sub 10-19 Borrow=${actualSub10to19BorrowPerPage}`);
 
     doc.setFont('courier', 'normal'); // Monospaced font for good alignment
     console.log("[generateHomework] Font set to courier.");
@@ -243,6 +317,7 @@ function generateHomework() {
         for (let k = 0; k < actualAddPerPage; k++) problemTypesForPage.push('add');
         for (let k = 0; k < actualNoBorrowPerPage; k++) problemTypesForPage.push('sub_no_borrow');
         for (let k = 0; k < actualWithBorrowPerPage; k++) problemTypesForPage.push('sub_with_borrow');
+        for (let k = 0; k < actualSub10to19BorrowPerPage; k++) problemTypesForPage.push('sub_10_19_borrow'); // ADD NEW TYPE
 
         // Shuffle the array to randomize problem order on the page
         for (let i = problemTypesForPage.length - 1; i > 0; i--) {
@@ -265,6 +340,9 @@ function generateHomework() {
                     break;
                 case 'sub_with_borrow':
                     problem = generateSubtractionProblemWithBorrowing();
+                    break;
+                case 'sub_10_19_borrow': // NEW CASE
+                    problem = generateSubtraction10to19WithBorrowing();
                     break;
                 default:
                     console.error("Unknown problem type:", problemType);
