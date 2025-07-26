@@ -136,6 +136,26 @@ function generateTwoDigitByTwoDigitMultiplicationProblem() {
     return problem;
 }
 
+// Generates a division problem with no remainder.
+// The result (quotient) must be less than 10 (1-9).
+// Divisor (num2) is 1-9. Dividend (num1) is num2 * quotient.
+function generateDivisionProblemNoRemainder() {
+    console.log("[generateDivisionProblemNoRemainder] Entry");
+    let num1, num2, quotient;
+
+    // Quotient must be 1-9
+    quotient = Math.floor(Math.random() * 9) + 1; // 1-9
+    // Divisor (num2) must be 1-9
+    num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+    
+    num1 = num2 * quotient; // Dividend is product of divisor and quotient
+
+    console.log(`[generateDivisionProblemNoRemainder] Generated: num1=${num1}, num2=${num2}, result=${num1/num2}`);
+    const problem = { num1, num2, operator: '÷' };
+    console.log("[generateDivisionProblemNoRemainder] Returning problem:", problem);
+    return problem;
+}
+
 // Generates a 9x9 multiplication table problem (randomly).
 // num1 and num2 are from 1 to 9.
 // This function is not used by generate9x9Homework anymore but kept for potential other uses.
@@ -239,7 +259,7 @@ function generateHomework() {
 
         actualNoBorrowPerPage = Math.round(PROBLEMS_PER_PAGE * ratios.noBorrow);
         actualWithBorrowPerPage = Math.round(PROBLEMS_PER_PAGE * ratios.withBorrow);
-        actualSub10to19BorrowPerPage = Math.round(PROBLEPS_PER_PAGE * ratios.sub10to19Borrow);
+        actualSub10to19BorrowPerPage = Math.round(PROBLEMS_PER_PAGE * ratios.sub10to19Borrow);
 
         // Adjust for rounding errors to ensure sum is exactly PROBLEMS_PER_PAGE (for subtraction types)
         let currentSubTotal = actualNoBorrowPerPage + actualWithBorrowPerPage + actualSub10to19BorrowPerPage;
@@ -490,7 +510,6 @@ function generateMultiplicationHomework() {
             // Line should span from left of operator to right of numbers
             const linePaddingLeftOfOperator = FONT_SIZE_PROBLEM * 0.2; 
             const lineStartX = operatorXPos - linePaddingLeftOfOperator;
-            console.log(`[generateMultiplicationHomework] Drawing line from X1=${lineStartX}, Y1=${lineYPos} to X2=${rightAlignX}, Y2=${lineYPos}`);
             doc.line(lineStartX, lineYPos, rightAlignX, lineYPos);
         }
         console.log(`[generateMultiplicationHomework] Finished page ${p + 1}`);
@@ -560,7 +579,7 @@ function generate9x9Homework() {
         
         doc.setFontSize(FONT_SIZE_9X9);
 
-        for (let i = 0; i < PROBLEMS_TO_DISPLAY_ON_PAGE; i++) {
+        for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
             const problem = all9x9Problems[i]; // Get problem from the pre-ordered list
             // console.log(`[generate9x9Homework] Problem ${i + 1}: ${problem.num1} ${problem.operator} ${problem.num2}`);
 
@@ -611,6 +630,9 @@ function generateMixedMultiplicationHomework() {
     const numSheets = parseInt(numSheetsInput.value) || 1;
     console.log(`[generateMixedMultiplicationHomework] Number of sheets requested: ${numSheets}`);
 
+    // Get number of division questions requested for the mixed page
+    const requestedDivMixed = parseInt(document.getElementById('numDivMixedMultiplyPerPage').value) || 0;
+
     doc.setFont('courier', 'normal');
     console.log("[generateMixedMultiplicationHomework] Font set to courier.");
 
@@ -622,51 +644,85 @@ function generateMixedMultiplicationHomework() {
     const CONTENT_WIDTH_L_PT = LANDSCAPE_PAGE_WIDTH_PT - 2 * MARGIN_PT;
     const CONTENT_HEIGHT_L_PT = LANDSCAPE_PAGE_HEIGHT_PT - 2 * MARGIN_PT;
 
+    // Constants for Page 1 layout (which contains the mixed problems)
+    const NUM_COLS_P1_L = 4; // 4 columns for vertical problems on landscape
+    const NUM_ROWS_P1_L = 3;   // 3 rows for vertical problems on landscape
+    const PROBLEMS_PER_PAGE_P1_L = NUM_COLS_P1_L * NUM_ROWS_P1_L; // 12 problems
+
+    // Calculate actual number of multiplication and division problems for Page 1
+    let actualDivPerPage = Math.min(requestedDivMixed, PROBLEMS_PER_PAGE_P1_L);
+    let actualMultPerPage = PROBLEMS_PER_PAGE_P1_L - actualDivPerPage;
+
+    console.log(`[generateMixedMultiplicationHomework] Problems per page distribution on P1: Mult=${actualMultPerPage}, Div=${actualDivPerPage}`);
+
+
     for (let sheet = 0; sheet < numSheets; sheet++) {
         console.log(`[generateMixedMultiplicationHomework] Starting sheet ${sheet + 1} of ${numSheets}`);
 
-        // --- Page 1: Vertical Multiplication (Landscape) ---
+        // --- Page 1: Vertical Multiplication & Division (Landscape) ---
         if (sheet > 0) { 
             // Add a new landscape page if this is not the very first page of the PDF (sheet > 0)
             doc.addPage({ orientation: 'l', format: 'letter' });
-            console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 1 (Vertical Mult)`);
+            console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 1 (Vertical Mixed)`);
         }
         // else, for sheet 0, page 1, use the initial landscape page created by new jsPDF().
         
-        doc.setFontSize(FONT_SIZE_PROBLEM); // Font for vertical multiplication
-        console.log(`[generateMixedMultiplicationHomework] Generating page 1 (Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+        doc.setFontSize(FONT_SIZE_PROBLEM); // Font for vertical problems
+        console.log(`[generateMixedMultiplicationHomework] Generating page 1 (Vertical Mixed, Landscape) for sheet ${sheet + 1}`);
 
-        // Layout for Vertical Multiplication on Landscape page
-        const NUM_COLS_P1_L = 4; // 4 columns for vertical mult on landscape
-        const NUM_ROWS_P1_L = 3;   // 3 rows for vertical mult on landscape
-        const PROBLEMS_PER_PAGE_P1_L = NUM_COLS_P1_L * NUM_ROWS_P1_L; // 12 problems
-        
         const CELL_WIDTH_P1_L = CONTENT_WIDTH_L_PT / NUM_COLS_P1_L;
         const CELL_HEIGHT_P1_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_P1_L;
 
+        // Prepare the list of problem types for this page
+        let problemTypesForPage1 = [];
+        for (let k = 0; k < actualMultPerPage; k++) problemTypesForPage1.push('mult');
+        for (let k = 0; k < actualDivPerPage; k++) problemTypesForPage1.push('div');
+
+        // Shuffle the array to randomize problem order on the page
+        for (let i = problemTypesForPage1.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [problemTypesForPage1[i], problemTypesForPage1[j]] = [problemTypesForPage1[j], problemTypesForPage1[i]];
+        }
+        console.log("[generateMixedMultiplicationHomework] Shuffled problem types for page 1:", problemTypesForPage1);
+
+
         for (let i = 0; i < PROBLEMS_PER_PAGE_P1_L; i++) {
-            const problem = generateMultiplicationProblem();
+            let problem;
+            const problemType = problemTypesForPage1[i];
+
+            switch (problemType) {
+                case 'mult':
+                    problem = generateMultiplicationProblem();
+                    break;
+                case 'div':
+                    problem = generateDivisionProblemNoRemainder(); // Use the new division problem generator
+                    break;
+                default:
+                    console.error("Unknown problem type in mixed multiplication/division:", problemType);
+                    problem = generateMultiplicationProblem(); // Fallback
+            }
+            console.log(`[generateMixedMultiplicationHomework] Problem ${i + 1} (${problemType}): ${problem.num1} ${problem.operator} ${problem.num2}`);
+            
             const row = Math.floor(i / NUM_COLS_P1_L);
             const col = i % NUM_COLS_P1_L;
             
             const cellX = MARGIN_PT + col * CELL_WIDTH_P1_L;
             const cellY = MARGIN_PT + row * CELL_HEIGHT_P1_L;
 
-            const s_num1 = String(problem.num1); // This will be the 2-digit number
-            const s_num2 = String(problem.num2); // This will be the 1-digit number
-            // Using global PROBLEM_PADDING_RIGHT. This is a fixed value derived from portrait cell width.
-            // It should be visually acceptable as landscape cell width (CELL_WIDTH_P1_L) is similar.
-            const rightAlignX = cellX + CELL_WIDTH_P1_L - PROBLEM_PADDING_RIGHT;
-            const twoDigitWidth = doc.getTextWidth("99"); // Using current font size (FONT_SIZE_PROBLEM)
+            const s_num1 = String(problem.num1);
+            const s_num2 = String(problem.num2);
             
-            // Vertical centering for 3 lines (num1, op+num2, -----) within CELL_HEIGHT_P1_L.
-            // LINE_SPACING is global, based on FONT_SIZE_PROBLEM.
+            const rightAlignX = cellX + CELL_WIDTH_P1_L - PROBLEM_PADDING_RIGHT;
+            // Use the width of "99" as a consistent reference for 2-digit number alignment, 
+            // even if num1/num2 are 1-digit, this ensures operators align consistently.
+            const twoDigitWidth = doc.getTextWidth("99"); 
+            
             let yPos = cellY + (CELL_HEIGHT_P1_L - (3 * LINE_SPACING)) / 2 + LINE_SPACING;
             
             doc.text(s_num1, rightAlignX, yPos, { align: 'right' });
             yPos += LINE_SPACING;
             doc.text(s_num2, rightAlignX, yPos, { align: 'right' });
-            // Using global OPERATOR_PADDING_LEFT, based on FONT_SIZE_PROBLEM.
+            
             const operatorXPos = rightAlignX - twoDigitWidth - OPERATOR_PADDING_LEFT;
             doc.text(problem.operator, operatorXPos, yPos);
             
@@ -676,7 +732,7 @@ function generateMixedMultiplicationHomework() {
             const lineStartX = operatorXPos - linePaddingLeftOfOperator;
             doc.line(lineStartX, lineYPos, rightAlignX, lineYPos);
         }
-        console.log(`[generateMixedMultiplicationHomework] Finished page 1 (Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
+        console.log(`[generateMixedMultiplicationHomework] Finished page 1 (Vertical Mixed, Landscape) for sheet ${sheet + 1}`);
 
         // --- Page 2: 9x9 Multiplication Table (Landscape) ---
         // This page will always be added, thus it's always a new page after page 1.
