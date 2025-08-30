@@ -17,6 +17,8 @@ class Cell {
     getUnvisitedNeighbors(grid, rows, cols) {
         const neighbors = [];
         // Define potential neighbor relative coordinates and the walls to remove
+        // wallToRemove: wall on *current* cell to remove to connect to neighbor
+        // neighborWallToRemove: wall on *neighbor* cell to remove to connect to current cell
         const potentialNeighbors = [
             { r: this.row - 1, c: this.col, wallToRemove: 'top', neighborWallToRemove: 'bottom' }, // Up
             { r: this.row, c: this.col + 1, wallToRemove: 'right', neighborWallToRemove: 'left' }, // Right
@@ -38,26 +40,52 @@ class Cell {
 }
 
 // Maze Generation Algorithm (Recursive Backtracker)
-function generateMaze(rows, cols) {
+// generationStyle: 'easy_path' for straighter paths, 'hard_path' for more winding/random paths
+function generateMaze(rows, cols, generationStyle) {
     // Initialize grid with all walls intact
     const grid = Array(rows).fill(null).map((_, r) =>
         Array(cols).fill(null).map((_, c) => new Cell(r, c))
     );
 
+    // Stack now stores objects { cell, enteredFrom } to track previous direction
+    // enteredFrom: the wall on the *current* cell that was broken to enter it (e.g., 'top' if came from above)
     const stack = [];
     const startCell = grid[0][0];
     startCell.visited = true;
-    stack.push(startCell);
+    // For the start cell, there's no 'enteredFrom' direction
+    stack.push({ cell: startCell, enteredFrom: null });
+
+    const straightPathBiasChance = 0.7; // 70% chance to prefer straight path for 'easy_path'
 
     while (stack.length > 0) {
-        const currentCell = stack[stack.length - 1]; // Peek at the top cell
+        // Peek at the top cell and its 'enteredFrom' direction
+        const { cell: currentCell, enteredFrom } = stack[stack.length - 1]; 
 
         // Get unvisited neighbors of the current cell
         const neighbors = currentCell.getUnvisitedNeighbors(grid, rows, cols);
 
         if (neighbors.length > 0) {
-            // Pick a random unvisited neighbor
-            const { cell: randomNeighbor, wallToRemove, neighborWallToRemove } = neighbors[Math.floor(Math.random() * neighbors.length)];
+            let chosenNeighborInfo;
+
+            if (generationStyle === 'easy_path' && enteredFrom !== null) {
+                // Determine the wall that would continue the straight path
+                // If currentCell was entered from 'top', a straight path means going 'down', so wallToRemove is 'bottom'
+                const straightPathWall = enteredFrom; // The wall to break to go straight is the same as the one we entered through
+                const straightNeighbors = neighbors.filter(n => n.wallToRemove === straightPathWall);
+
+                if (straightNeighbors.length > 0 && Math.random() < straightPathBiasChance) {
+                    // Pick a random straight neighbor
+                    chosenNeighborInfo = straightNeighbors[Math.floor(Math.random() * straightNeighbors.length)];
+                } else {
+                    // Either no straight path, or failed the bias chance, so pick randomly from all neighbors
+                    chosenNeighborInfo = neighbors[Math.floor(Math.random() * neighbors.length)];
+                }
+            } else {
+                // 'hard_path' or first cell (enteredFrom is null) - pick a purely random unvisited neighbor
+                chosenNeighborInfo = neighbors[Math.floor(Math.random() * neighbors.length)];
+            }
+            
+            const { cell: randomNeighbor, wallToRemove, neighborWallToRemove } = chosenNeighborInfo;
 
             // Remove walls between the current cell and the chosen neighbor
             currentCell.walls[wallToRemove] = false;
@@ -65,7 +93,8 @@ function generateMaze(rows, cols) {
 
             // Mark the chosen neighbor as visited and push it to the stack
             randomNeighbor.visited = true;
-            stack.push(randomNeighbor);
+            // Store the direction from which the randomNeighbor was entered
+            stack.push({ cell: randomNeighbor, enteredFrom: neighborWallToRemove });
         } else {
             // If no unvisited neighbors, backtrack by popping the current cell
             stack.pop();
@@ -149,7 +178,7 @@ function drawMaze(ctx, maze, rows, cols, cellSize, wallThickness) {
 }
 
 // Main function to create and download the maze PDF
-function createAndDownloadMazePDF(difficulty, numPages) {
+function createAndDownloadMazePDF(mazeSize, generationStyle, numPages) {
     // Ensure jsPDF is loaded
     if (typeof jspdf === 'undefined' || !jspdf.jsPDF) {
         console.error("jsPDF library not loaded. Please check the CDN link.");
@@ -158,21 +187,25 @@ function createAndDownloadMazePDF(difficulty, numPages) {
     }
 
     let mazeRows, mazeCols;
-    switch (difficulty) {
-        case 'easy':
+    switch (mazeSize) {
+        case 'small':
             mazeRows = 15;
             mazeCols = 15;
             break;
         case 'medium':
-            mazeRows = 25; // Original default
+            mazeRows = 25;
             mazeCols = 25;
             break;
-        case 'hard':
+        case 'large':
             mazeRows = 35;
             mazeCols = 35;
             break;
+        case 'x-large':
+            mazeRows = 45;
+            mazeCols = 45;
+            break;
         default:
-            console.warn("Invalid difficulty, defaulting to medium.");
+            console.warn("Invalid maze size, defaulting to medium.");
             mazeRows = 25;
             mazeCols = 25;
             break;
@@ -232,8 +265,8 @@ function createAndDownloadMazePDF(difficulty, numPages) {
         canvas.height = canvasTotalHeight;
         const ctx = canvas.getContext('2d');
 
-        // Generate maze data
-        const maze = generateMaze(mazeRows, mazeCols);
+        // Generate maze data, passing the generationStyle
+        const maze = generateMaze(mazeRows, mazeCols, generationStyle);
 
         // Make entrance at the top of the first cell (0,0)
         // By setting its top wall to false, `drawMaze` will not render it.
@@ -253,5 +286,5 @@ function createAndDownloadMazePDF(difficulty, numPages) {
     }
 
     // Save the PDF file
-    pdf.save(`maze_puzzles_${difficulty}_${numPages}_pages.pdf`);
+    pdf.save(`maze_puzzles_${mazeSize}_${generationStyle}_${numPages}_pages.pdf`);
 }

@@ -65,11 +65,19 @@
 <body>
     <div class="controls">
         <div class="control-group">
-            <label for="difficulty">Difficulty:</label>
-            <select id="difficulty">
-                <option value="easy">Easy (15x15)</option>
+            <label for="mazeSize">Maze Size:</label>
+            <select id="mazeSize">
+                <option value="small">Small (15x15)</option>
                 <option value="medium" selected>Medium (25x25)</option>
-                <option value="hard">Hard (35x35)</option>
+                <option value="large">Large (35x35)</option>
+                <option value="x-large">X-Large (45x45)</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="generationStyle">Difficulty:</label>
+            <select id="generationStyle">
+                <option value="easy_path">Easy (Straighter Paths)</option>
+                <option value="hard_path" selected>Hard (Winding Paths)</option>
             </select>
         </div>
         <div class="control-group">
@@ -77,7 +85,11 @@
             <input type="number" id="numPages" value="1" min="1" max="100">
         </div>
     </div>
-    <button onclick="createAndDownloadMazePDF(document.getElementById('difficulty').value, parseInt(document.getElementById('numPages').value, 10))">
+    <button onclick="createAndDownloadMazePDF(
+        document.getElementById('mazeSize').value,
+        document.getElementById('generationStyle').value,
+        parseInt(document.getElementById('numPages').value, 10)
+    )">
         Generate Maze PDF
     </button>
 
