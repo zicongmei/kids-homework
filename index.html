@@ -2,16 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; URL=math_lv_2/index.html">
-    <link rel="canonical" href="math_lv_2/index.html" />
+    <title>Kids Homework Selection</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
-        a { color: #007bff; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh; /* Make body take up most of the viewport height */
+        }
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px; /* Space between buttons */
+        }
+        .button-container button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
-    <p>If you are not redirected automatically, please click the link below:</p>
-    <p><a href="math_lv_2/index.html">Go to Kids Homework Generator (Math Lv 2)</a></p>
+    <h1>Welcome to Kids Homework!</h1>
+    <p>Please select an activity:</p>
+    <div class="button-container">
+        <button onclick="location.href='math_lv_2/index.html'">Go to Math Level 2</button>
+        <button onclick="location.href='maze/index.html'">Go to Maze Game</button>
+    </div>
 </body>
 </html>
