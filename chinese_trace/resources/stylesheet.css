@@ -30,3 +30,8 @@ body {
     height: 500px;
     margin-top: 20px;
 }
+.status-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}

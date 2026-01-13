@@ -9,11 +9,11 @@
     <h1>Chinese Character Tracing Sheet</h1>
     <div class="container">
         <div class="controls">
-            <label for="char-select">Select a character:</label>
-            <select id="char-select"></select>
+            <label for="page-count">Number of pages:</label>
+            <input type="number" id="page-count" value="1" min="1">
             <button id="generate-pdf">Generate PDF</button>
         </div>
-        <div id="preview-area"></div>
+        <div id="font-status" class="status-message"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="resources/characters.js"></script>
