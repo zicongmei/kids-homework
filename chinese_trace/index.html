@@ -15,8 +15,8 @@
         <h1>Chinese Tracing Generator</h1>
         
         <div class="preview-box">
-            <canvas id="preview-canvas" width="200" height="200"></canvas>
-            <p>Font Preview (What you see is what you get)</p>
+            <canvas id="preview-canvas" width="160" height="160"></canvas>
+            <p>Font Style Preview (永)</p>
         </div>
 
         <div class="controls">
@@ -33,8 +33,18 @@
                 <label for="page-count">Number of Pages:</label>
                 <input type="number" id="page-count" value="1" min="1">
             </div>
-            <button id="generate-pdf">Generate PDF Tracing Sheet</button>
+            
+            <div class="button-group">
+                <button id="refresh-batch" class="secondary-btn">Regenerate Characters</button>
+                <button id="generate-pdf">Generate PDF</button>
+            </div>
         </div>
+
+        <div id="batch-preview" class="batch-preview">
+            <h3>Characters to be in PDF:</h3>
+            <div id="character-list" class="character-list"></div>
+        </div>
+
         <div id="font-status" class="status-message">Ready</div>
         <div id="character-status" class="status-message">Loading library...</div>
     </div>

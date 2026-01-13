@@ -1,52 +1,82 @@
 window.jsPDF = window.jspdf.jsPDF;
 
 const generatePdfBtn = document.getElementById('generate-pdf');
+const refreshBatchBtn = document.getElementById('refresh-batch');
 const pageCountInput = document.getElementById('page-count');
 const fontSelector = document.getElementById('font-family');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
 const previewCanvas = document.getElementById('preview-canvas');
+const characterListDiv = document.getElementById('character-list');
+
+let selectedCharactersBatch = [];
 
 /**
  * Synchronously renders a character to a temporary canvas and adds it to the PDF as an image.
  */
 function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, width, height) {
     const canvas = document.createElement('canvas');
-    canvas.width = 400; // Even higher resolution
+    canvas.width = 400; 
     canvas.height = 400;
     const ctx = canvas.getContext('2d');
     
-    // Fill white background for the image
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Render text onto the canvas using the font that the browser has currently loaded
     ctx.fillStyle = color;
     ctx.font = `280px "${fontFamily}"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(character, canvas.width / 2, canvas.height / 2);
     
-    // Convert to JPEG for the PDF
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
     doc.addImage(imgData, 'JPEG', x, y, width, height);
 }
 
-function updatePreview() {
-    const character = '永';
+function updateStylePreview() {
     const fontFamily = fontSelector.value;
-    
     const ctx = previewCanvas.getContext('2d');
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-    
     ctx.fillStyle = '#000000';
-    ctx.font = `160px "${fontFamily}"`;
+    ctx.font = `120px "${fontFamily}"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(character, previewCanvas.width / 2, previewCanvas.height / 2);
+    ctx.fillText('永', previewCanvas.width / 2, previewCanvas.height / 2);
     
-    if (fontStatus) fontStatus.innerHTML = `Previewing font: ${fontFamily}`;
+    // Also update the font in the batch preview items
+    const items = document.querySelectorAll('.preview-char-item');
+    items.forEach(item => {
+        item.style.fontFamily = `"${fontFamily}"`;
+    });
+}
+
+function refreshCharacterBatch() {
+    const pageCount = parseInt(pageCountInput.value, 10) || 1;
+    const totalCharsNeeded = pageCount * 6;
+    selectedCharactersBatch = [];
+    
+    if (typeof characters === 'undefined' || characters.length === 0) return;
+
+    for (let i = 0; i < totalCharsNeeded; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        selectedCharactersBatch.push(characters[randomIndex]);
+    }
+    
+    renderBatchPreview();
+}
+
+function renderBatchPreview() {
+    characterListDiv.innerHTML = '';
+    const fontFamily = fontSelector.value;
+    
+    selectedCharactersBatch.forEach(char => {
+        const charEl = document.createElement('div');
+        charEl.className = 'preview-char-item';
+        charEl.innerText = char;
+        charEl.style.fontFamily = `"${fontFamily}"`;
+        characterListDiv.appendChild(charEl);
+    });
 }
 
 function drawPage(doc, charList, fontFamily) {
@@ -66,7 +96,6 @@ function drawPage(doc, charList, fontFamily) {
             const x = margin + j * cellWidth;
             const y = margin + i * cellHeight;
 
-            // Draw grid lines (using native jsPDF drawing)
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.1);
             doc.rect(x, y, cellWidth, cellHeight);
@@ -76,7 +105,6 @@ function drawPage(doc, charList, fontFamily) {
             doc.line(x + cellWidth / 2, y, x + cellWidth / 2, y + cellHeight);
             doc.setLineDash([], 0);
 
-            // Generate character image based on color and current font state
             const color = (j === 0) ? '#000000' : '#E5E5E5';
             const padding = 2;
             addCharacterImageToPdf(doc, character, color, fontFamily, 
@@ -94,18 +122,19 @@ generatePdfBtn.addEventListener('click', () => {
         alert("Please enter a valid number of pages.");
         return;
     }
+    
+    if (selectedCharactersBatch.length === 0) {
+        refreshCharacterBatch();
+    }
 
     const doc = new jsPDF();
     if (fontStatus) fontStatus.innerHTML = "Generating PDF...";
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) doc.addPage();
-        const selectedCharacters = [];
-        for (let i = 0; i < 6; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            selectedCharacters.push(characters[randomIndex]);
-        }
-        drawPage(doc, selectedCharacters, selectedFont);
+        // Take 6 characters for this page from the pre-selected batch
+        const pageChars = selectedCharactersBatch.slice(p * 6, (p + 1) * 6);
+        drawPage(doc, pageChars, selectedFont);
     }
 
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
@@ -113,22 +142,33 @@ generatePdfBtn.addEventListener('click', () => {
     if (fontStatus) fontStatus.innerHTML = "Done! PDF Downloaded.";
 });
 
+refreshBatchBtn.addEventListener('click', () => {
+    refreshCharacterBatch();
+});
+
 fontSelector.addEventListener('change', () => {
-    updatePreview();
+    updateStylePreview();
+});
+
+pageCountInput.addEventListener('change', () => {
+    refreshCharacterBatch();
 });
 
 function init() {
     if (typeof characters === 'undefined' || characters.length === 0) {
         characterStatus.innerHTML = "Error: Library not loaded.";
         generatePdfBtn.disabled = true;
+        refreshBatchBtn.disabled = true;
     } else {
-        characterStatus.innerHTML = "Character library loaded.";
-        // Final attempt to ensure preview is correct once everything is loaded
+        characterStatus.innerHTML = "Library loaded.";
         document.fonts.ready.then(() => {
-            updatePreview();
+            updateStylePreview();
+            refreshCharacterBatch();
         });
-        // Fallback for slower browsers
-        setTimeout(updatePreview, 1000);
+        setTimeout(() => {
+            updateStylePreview();
+            if (selectedCharactersBatch.length === 0) refreshCharacterBatch();
+        }, 1000);
     }
 }
 
