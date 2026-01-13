@@ -286,5 +286,6 @@ function createAndDownloadMazePDF(mazeSize, generationStyle, numPages) {
     }
 
     // Save the PDF file
-    pdf.save(`maze_puzzles_${mazeSize}_${generationStyle}_${numPages}_pages.pdf`);
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    pdf.save(`maze_puzzles_${mazeSize}_${generationStyle}_${numPages}_pages_${timestamp}.pdf`);
 }

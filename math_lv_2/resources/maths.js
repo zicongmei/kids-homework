@@ -424,7 +424,8 @@ function generateHomework() {
         console.log(`[generateHomework] Finished page ${p + 1}`);
     }
 
-    doc.save('kids_add_sub_homework.pdf'); // Changed filename
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_add_sub_homework_${timestamp}.pdf`); // Changed filename
     console.log("[generateHomework] PDF 'kids_add_sub_homework.pdf' saved. Exiting.");
 }
 
@@ -515,7 +516,8 @@ function generateMultiplicationHomework() {
         console.log(`[generateMultiplicationHomework] Finished page ${p + 1}`);
     }
 
-    doc.save('kids_multiplication_homework.pdf'); // Save with a new filename
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_multiplication_homework_${timestamp}.pdf`); // Save with a new filename
     console.log("[generateMultiplicationHomework] PDF 'kids_multiplication_homework.pdf' saved. Exiting.");
 }
 
@@ -611,7 +613,8 @@ function generate9x9Homework() {
         console.log(`[generate9x9Homework] Finished page ${p + 1}`);
     }
 
-    doc.save('kids_9x9_multiplication_homework.pdf');
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_9x9_multiplication_homework_${timestamp}.pdf`);
     console.log("[generate9x9Homework] PDF 'kids_9x9_multiplication_homework.pdf' saved. Exiting.");
 }
 
@@ -782,7 +785,8 @@ function generateMixedMultiplicationHomework() {
         console.log(`[generateMixedMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
     }
 
-    doc.save('kids_mixed_multiplication_homework.pdf');
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_mixed_multiplication_homework_${timestamp}.pdf`);
     console.log("[generateMixedMultiplicationHomework] PDF 'kids_mixed_multiplication_homework.pdf' saved. Exiting.");
 }
 
@@ -909,7 +913,8 @@ function generateTwoDigitMultiplicationHomework() {
         console.log(`[generateTwoDigitMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
     }
 
-    doc.save('kids_two_digit_multiplication_homework.pdf'); // New filename for this specific homework type
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_two_digit_multiplication_homework_${timestamp}.pdf`); // New filename for this specific homework type
     console.log("[generateTwoDigitMultiplicationHomework] PDF 'kids_two_digit_multiplication_homework.pdf' saved. Exiting.");
 }
 

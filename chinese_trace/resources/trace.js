@@ -2,7 +2,43 @@ window.jsPDF = window.jspdf.jsPDF;
 
 const generatePdfBtn = document.getElementById('generate-pdf');
 const pageCountInput = document.getElementById('page-count');
+const fontStatus = document.getElementById('font-status');
 
+function isFontAvailable(fontName) {
+    try {
+        const doc = new jsPDF();
+        doc.setFont(fontName, 'normal');
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function updateFontStatus() {
+    if (!isFontAvailable('Noto Sans SC')) {
+        const warning = `
+            <strong>Warning:</strong> Chinese font not found. 
+            The generated PDF will not display characters correctly.
+            <br>
+            Please follow these steps to install the font:
+            <ol>
+                <li>Download the font <a href="https://fonts.google.com/noto/specimen/Noto+Sans+SC" target="_blank">Noto Sans SC</a> from Google Fonts. Click on "Download family".</li>
+                <li>Go to the <a href="https://rawgit.com/MrRio/jsPDF/master/fontconverter/fontconverter.html" target="_blank">jsPDF font converter</a>.</li>
+                <li>Select the .ttf file for the regular weight (e.g., NotoSansSC-Regular.ttf), and click 'Create'. This will generate a .js file.</li>
+                <li>Save the .js file as 'NotoSansSC-Regular-normal.js' in the 'chinese_trace/resources' directory.</li>
+                <li>Add the following line to 'chinese_trace/index.html' before the 'trace.js' script tag: <br>
+                    <code>&lt;script src="resources/NotoSansSC-Regular-normal.js"&gt;&lt;/script&gt;</code>
+                </li>
+            </ol>
+        `;
+        if(fontStatus) fontStatus.innerHTML = warning;
+    } else {
+        if(fontStatus) {
+            fontStatus.innerHTML = "Chinese font loaded successfully.";
+            fontStatus.style.color = "green";
+        }
+    }
+}
 function drawPage(doc, characters) {
     const rows = 6;
     const cols = 5;
@@ -35,6 +71,11 @@ function drawPage(doc, characters) {
 }
 
 generatePdfBtn.addEventListener('click', () => {
+    if (!isFontAvailable('Noto Sans SC')) {
+        alert("Chinese font not found. Please follow the instructions on the page to install the font before generating the PDF.");
+        return;
+    }
+
     const pageCount = parseInt(pageCountInput.value, 10);
     if (pageCount < 1) {
         alert("Please enter a valid number of pages.");
@@ -56,6 +97,9 @@ generatePdfBtn.addEventListener('click', () => {
         drawPage(doc, selectedCharacters);
     }
 
-    doc.save('chinese-trace-sheet.pdf');
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`chinese-trace-sheet_${timestamp}.pdf`);
 });
+
+updateFontStatus();
 
