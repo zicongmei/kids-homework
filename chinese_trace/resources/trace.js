@@ -2,41 +2,7 @@ window.jsPDF = window.jspdf.jsPDF;
 
 const generatePdfBtn = document.getElementById('generate-pdf');
 const pageCountInput = document.getElementById('page-count');
-const fontStatus = document.getElementById('font-status');
 
-function isFontAvailable(fontName) {
-    try {
-        const doc = new jsPDF();
-        doc.setFont(fontName, 'normal');
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-function updateFontStatus() {
-    if (!isFontAvailable('AR-PL-UKai-CN')) {
-        const warning = `
-            <strong>Warning:</strong> Chinese font not found. 
-            The generated PDF will not display characters correctly.
-            <br>
-            Please follow these steps to install the font:
-            <ol>
-                <li>Download the font <a href="https://www.likefont.com/font/39838.html" target="_blank">AR PL UKai CN</a>.</li>
-                <li>Go to the <a href="https://rawgit.com/MrRio/jsPDF/master/fontconverter/fontconverter.html" target="_blank">jsPDF font converter</a>.</li>
-                <li>Select the downloaded .ttf file, and click 'Create'. This will generate a .js file.</li>
-                <li>Save the .js file as 'AR-PL-UKai-CN-normal.js' in the 'chinese_trace/resources' directory.</li>
-                <li>Add the following line to 'chinese_trace/index.html' before the 'trace.js' script tag: <br>
-                    <code>&lt;script src="resources/AR-PL-UKai-CN-normal.js"&gt;&lt;/script&gt;</code>
-                </li>
-            </ol>
-        `;
-        fontStatus.innerHTML = warning;
-    } else {
-        fontStatus.innerHTML = "Chinese font loaded successfully.";
-        fontStatus.style.color = "green";
-    }
-}
 function drawPage(doc, characters) {
     const rows = 6;
     const cols = 5;
@@ -69,11 +35,6 @@ function drawPage(doc, characters) {
 }
 
 generatePdfBtn.addEventListener('click', () => {
-    if (!isFontAvailable('AR-PL-UKai-CN')) {
-        alert("Chinese font not found. Please follow the instructions on the page to install the font before generating the PDF.");
-        return;
-    }
-
     const pageCount = parseInt(pageCountInput.value, 10);
     if (pageCount < 1) {
         alert("Please enter a valid number of pages.");
@@ -81,7 +42,7 @@ generatePdfBtn.addEventListener('click', () => {
     }
 
     const doc = new jsPDF();
-    doc.setFont('AR-PL-UKai-CN', 'normal');
+    doc.setFont('Noto Sans SC', 'normal');
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) {
@@ -98,4 +59,3 @@ generatePdfBtn.addEventListener('click', () => {
     doc.save('chinese-trace-sheet.pdf');
 });
 
-updateFontStatus();
