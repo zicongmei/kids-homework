@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chinese Character Tracing Sheet Generator</title>
+    <link rel="stylesheet" href="resources/stylesheet.css">
+</head>
+<body>
+    <h1>Chinese Character Tracing Sheet</h1>
+    <div class="container">
+        <div class="controls">
+            <label for="char-select">Select a character:</label>
+            <select id="char-select"></select>
+            <button id="generate-pdf">Generate PDF</button>
+        </div>
+        <div id="preview-area"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="resources/characters.js"></script>
+    <script src="resources/trace.js"></script>
+</body>
+</html>

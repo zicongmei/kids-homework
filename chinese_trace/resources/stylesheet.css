@@ -1,0 +1,32 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.controls {
+    margin-bottom: 20px;
+}
+
+#char-select {
+    font-size: 1.2em;
+    padding: 5px;
+}
+
+#generate-pdf {
+    font-size: 1.2em;
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+#preview-area {
+    border: 1px solid #ccc;
+    width: 80%;
+    height: 500px;
+    margin-top: 20px;
+}
