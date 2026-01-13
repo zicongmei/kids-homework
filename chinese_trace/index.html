@@ -2,16 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chinese Character Tracing Sheet Generator</title>
     <link rel="stylesheet" href="resources/stylesheet.css">
 </head>
 <body>
-    <h1>Chinese Character Tracing Sheet</h1>
     <div class="container">
+        <h1>Chinese Trace Sheet Generator</h1>
         <div class="controls">
-            <label for="page-count">Number of pages:</label>
-            <input type="number" id="page-count" value="1" min="1">
-            <button id="generate-pdf">Generate PDF</button>
+            <div class="input-group">
+                <label for="page-count">Number of pages:</label>
+                <input type="number" id="page-count" value="1" min="1">
+            </div>
+            <button id="generate-pdf">Generate Tracing Sheet PDF</button>
         </div>
         <div id="font-status" class="status-message"></div>
         <div id="character-status" class="status-message"></div>
