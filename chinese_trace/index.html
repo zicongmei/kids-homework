@@ -4,17 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chinese Tracing Sheet Generator</title>
+    <!-- Use link tags instead of @import for better reliability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="resources/stylesheet.css">
 </head>
 <body>
     <div class="container">
-        <h1>Chinese Tracing Sheet Generator</h1>
+        <h1>Chinese Tracing Generator</h1>
+        
+        <div class="preview-box">
+            <canvas id="preview-canvas" width="200" height="200"></canvas>
+            <p>Font Preview (What you see is what you get)</p>
+        </div>
+
         <div class="controls">
             <div class="input-group">
                 <label for="font-family">Writing Style (Font):</label>
                 <select id="font-family">
-                    <option value="'Ma Shan Zheng', cursive">楷体 (Kaiti - For Writing Practice)</option>
-                    <option value="'Noto Serif SC', 'SimSun', serif">宋体 (Songti - For Reading)</option>
+                    <option value="Ma Shan Zheng">楷体 (Kaiti - Calligraphy)</option>
+                    <option value="Noto Serif SC">宋体 (Songti - Serif)</option>
+                    <option value="ZCOOL XiaoWei">精致宋体 (ZCOOL XiaoWei)</option>
+                    <option value="Noto Sans SC">黑体 (Heiti - Sans-Serif)</option>
                 </select>
             </div>
             <div class="input-group">
@@ -23,9 +35,18 @@
             </div>
             <button id="generate-pdf">Generate PDF Tracing Sheet</button>
         </div>
-        <div id="font-status" class="status-message"></div>
-        <div id="character-status" class="status-message"></div>
+        <div id="font-status" class="status-message">Ready</div>
+        <div id="character-status" class="status-message">Loading library...</div>
     </div>
+    
+    <!-- Hidden elements to force font loading -->
+    <div style="visibility: hidden; position: absolute; top: -1000px;">
+        <span style="font-family: 'Ma Shan Zheng';">楷体</span>
+        <span style="font-family: 'Noto Serif SC';">宋体</span>
+        <span style="font-family: 'ZCOOL XiaoWei';">精致</span>
+        <span style="font-family: 'Noto Sans SC';">黑体</span>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="resources/characters.js"></script>
     <script src="resources/trace.js"></script>

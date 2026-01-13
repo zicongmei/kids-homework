@@ -5,32 +5,51 @@ const pageCountInput = document.getElementById('page-count');
 const fontSelector = document.getElementById('font-family');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
+const previewCanvas = document.getElementById('preview-canvas');
 
-function getCharacterImage(character, color, fontFamily) {
+/**
+ * Synchronously renders a character to a temporary canvas and adds it to the PDF as an image.
+ */
+function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, width, height) {
     const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
+    canvas.width = 400; // Even higher resolution
+    canvas.height = 400;
     const ctx = canvas.getContext('2d');
     
-    // Clear background
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Fill white background for the image
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Render text onto the canvas using the font that the browser has currently loaded
     ctx.fillStyle = color;
-    // Use the selected font family
-    ctx.font = `160px ${fontFamily}`;
+    ctx.font = `280px "${fontFamily}"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(character, 100, 100);
-    return canvas.toDataURL('image/png');
+    ctx.fillText(character, canvas.width / 2, canvas.height / 2);
+    
+    // Convert to JPEG for the PDF
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    doc.addImage(imgData, 'JPEG', x, y, width, height);
 }
 
-function updateFontStatus() {
-    if (fontStatus) {
-        fontStatus.innerHTML = "Choose '楷体' (Kaiti) for handwriting practice or '宋体' (Songti) for reading.";
-    }
+function updatePreview() {
+    const character = (typeof characters !== 'undefined' && characters.length > 0) ? characters[0] : '永';
+    const fontFamily = fontSelector.value;
+    
+    const ctx = previewCanvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = `160px "${fontFamily}"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(character, previewCanvas.width / 2, previewCanvas.height / 2);
+    
+    if (fontStatus) fontStatus.innerHTML = `Previewing font: ${fontFamily}`;
 }
 
-function drawPage(doc, characters, fontFamily) {
+function drawPage(doc, charList, fontFamily) {
     const rows = 6;
     const cols = 5;
     const margin = 20;
@@ -40,31 +59,29 @@ function drawPage(doc, characters, fontFamily) {
     const cellHeight = (pageHeight - 2 * margin) / rows;
 
     for (let i = 0; i < rows; i++) {
-        const character = characters[i];
+        const character = charList[i];
         if (!character) continue;
 
         for (let j = 0; j < cols; j++) {
             const x = margin + j * cellWidth;
             const y = margin + i * cellHeight;
 
-            // Draw the grid box
+            // Draw grid lines (using native jsPDF drawing)
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.1);
             doc.rect(x, y, cellWidth, cellHeight);
             
-            // Draw a dashed cross inside the box for tracing guidance
             doc.setLineDash([1, 1], 0);
             doc.line(x, y + cellHeight / 2, x + cellWidth, y + cellHeight / 2);
             doc.line(x + cellWidth / 2, y, x + cellWidth / 2, y + cellHeight);
             doc.setLineDash([], 0);
 
-            // Generate character image based on color and font
-            const color = (j === 0) ? '#000000' : '#E0E0E0';
-            const imgData = getCharacterImage(character, color, fontFamily);
-            
-            // Add the image to the PDF
+            // Generate character image based on color and current font state
+            const color = (j === 0) ? '#000000' : '#E5E5E5';
             const padding = 2;
-            doc.addImage(imgData, 'PNG', x + padding, y + padding, cellWidth - 2 * padding, cellHeight - 2 * padding);
+            addCharacterImageToPdf(doc, character, color, fontFamily, 
+                                 x + padding, y + padding, 
+                                 cellWidth - 2 * padding, cellHeight - 2 * padding);
         }
     }
 }
@@ -79,11 +96,10 @@ generatePdfBtn.addEventListener('click', () => {
     }
 
     const doc = new jsPDF();
+    if (fontStatus) fontStatus.innerHTML = "Generating PDF...";
 
     for (let p = 0; p < pageCount; p++) {
-        if (p > 0) {
-            doc.addPage();
-        }
+        if (p > 0) doc.addPage();
         const selectedCharacters = [];
         for (let i = 0; i < 6; i++) {
             const randomIndex = Math.floor(Math.random() * characters.length);
@@ -93,29 +109,27 @@ generatePdfBtn.addEventListener('click', () => {
     }
 
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-    doc.save(`chinese-trace-sheet_${timestamp}.pdf`);
+    doc.save(`chinese-trace_${timestamp}.pdf`);
+    if (fontStatus) fontStatus.innerHTML = "Done! PDF Downloaded.";
 });
 
-function updateCharacterStatus() {
+fontSelector.addEventListener('change', () => {
+    updatePreview();
+});
+
+function init() {
     if (typeof characters === 'undefined' || characters.length === 0) {
-        const error = `
-            <strong>Error:</strong> Character library missing.
-        `;
-        if (characterStatus) characterStatus.innerHTML = error;
+        characterStatus.innerHTML = "Error: Library not loaded.";
         generatePdfBtn.disabled = true;
     } else {
-        if (characterStatus) {
-            characterStatus.innerHTML = "Character library loaded successfully.";
-            characterStatus.style.color = "#27ae60";
-        }
-        generatePdfBtn.disabled = false;
+        characterStatus.innerHTML = "Character library loaded.";
+        // Final attempt to ensure preview is correct once everything is loaded
+        document.fonts.ready.then(() => {
+            updatePreview();
+        });
+        // Fallback for slower browsers
+        setTimeout(updatePreview, 1000);
     }
 }
 
-// Update UI font when selector changes
-fontSelector.addEventListener('change', () => {
-    document.body.style.fontFamily = fontSelector.value;
-});
-
-updateFontStatus();
-updateCharacterStatus();
+window.onload = init;

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Ma+Shan+Zheng&display=swap');
-
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #34495e;
@@ -12,7 +10,7 @@
 }
 
 body {
-    font-family: 'Noto Serif SC', serif;
+    font-family: 'Noto Sans SC', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
@@ -25,9 +23,9 @@ body {
 
 .container {
     width: 95%;
-    max-width: 500px;
+    max-width: 450px;
     background-color: var(--card-bg);
-    padding: 2.5rem;
+    padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     text-align: center;
@@ -36,57 +34,69 @@ body {
 
 h1 {
     color: var(--primary-color);
-    margin-bottom: 2rem;
-    font-size: 1.6rem;
-    line-height: 1.4;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.preview-box {
+    margin-bottom: 1.5rem;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+#preview-canvas {
+    background: white;
+    border: 1px dashed #ccc;
+    max-width: 100%;
+}
+
+.preview-box p {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: #888;
 }
 
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.6rem;
+    gap: 0.4rem;
 }
 
 label {
     font-weight: bold;
     color: var(--secondary-color);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 input[type="number"], select {
     width: 100%;
-    padding: 0.9rem;
+    padding: 0.8rem;
     border: 2px solid #edf2f7;
     border-radius: var(--border-radius);
     font-size: 1rem;
     box-sizing: border-box;
     background-color: #f8fafc;
-    transition: border-color 0.2s;
-}
-
-input[type="number"]:focus, select:focus {
-    outline: none;
-    border-color: var(--accent-color);
 }
 
 button {
     background-color: var(--accent-color);
     color: white;
     border: none;
-    padding: 1.1rem;
+    padding: 1rem;
     border-radius: var(--border-radius);
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.1s;
     box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2);
 }
 
@@ -94,33 +104,22 @@ button:hover {
     background-color: #d35400;
 }
 
-button:active {
-    transform: scale(0.98);
-}
-
 button:disabled {
-    background-color: #cbd5e0;
+    background-color: #bdc3c7;
     cursor: not-allowed;
-    box-shadow: none;
 }
 
 .status-message {
     font-size: 0.85rem;
     margin-top: 1rem;
-    padding: 1rem;
+    padding: 0.6rem;
     border-radius: var(--border-radius);
     background-color: #f8fafc;
-    border: 1px solid #edf2f7;
     color: #64748b;
 }
 
-/* Responsive adjustments */
 @media (max-width: 480px) {
     .container {
         padding: 1.5rem;
-    }
-    
-    h1 {
-        font-size: 1.4rem;
     }
 }
