@@ -4,6 +4,7 @@ const generatePdfBtn = document.getElementById('generate-pdf');
 const refreshBatchBtn = document.getElementById('refresh-batch');
 const pageCountInput = document.getElementById('page-count');
 const fontSelector = document.getElementById('font-family');
+const difficultySelector = document.getElementById('difficulty-level');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
 const previewCanvas = document.getElementById('preview-canvas');
@@ -54,13 +55,21 @@ function updateStylePreview() {
 function refreshCharacterBatch() {
     const pageCount = parseInt(pageCountInput.value, 10) || 1;
     const totalCharsNeeded = pageCount * 6;
+    const level = difficultySelector.value;
     selectedCharactersBatch = [];
     
-    if (typeof characters === 'undefined' || characters.length === 0) return;
+    let availableCharacters = [];
+    if (level === 'all') {
+        availableCharacters = characters;
+    } else {
+        availableCharacters = charactersByLevel[level];
+    }
+    
+    if (!availableCharacters || availableCharacters.length === 0) return;
 
     for (let i = 0; i < totalCharsNeeded; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        selectedCharactersBatch.push(characters[randomIndex]);
+        const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+        selectedCharactersBatch.push(availableCharacters[randomIndex]);
     }
     
     renderBatchPreview();
@@ -157,6 +166,10 @@ refreshBatchBtn.addEventListener('click', () => {
 
 fontSelector.addEventListener('change', () => {
     updateStylePreview();
+});
+
+difficultySelector.addEventListener('change', () => {
+    refreshCharacterBatch();
 });
 
 pageCountInput.addEventListener('change', () => {
