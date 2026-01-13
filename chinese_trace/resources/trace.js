@@ -3,6 +3,7 @@ window.jsPDF = window.jspdf.jsPDF;
 const generatePdfBtn = document.getElementById('generate-pdf');
 const pageCountInput = document.getElementById('page-count');
 const fontStatus = document.getElementById('font-status');
+const characterStatus = document.getElementById('character-status');
 
 function isFontAvailable(fontName) {
     try {
@@ -101,5 +102,23 @@ generatePdfBtn.addEventListener('click', () => {
     doc.save(`chinese-trace-sheet_${timestamp}.pdf`);
 });
 
+function updateCharacterStatus() {
+    if (typeof characters === 'undefined' || characters.length === 0) {
+        const error = `
+            <strong>Error:</strong> Chinese characters not loaded. 
+            The file 'resources/characters.js' might be missing or empty.
+        `;
+        if (characterStatus) characterStatus.innerHTML = error;
+        generatePdfBtn.disabled = true;
+    } else {
+        if (characterStatus) {
+            characterStatus.innerHTML = "Chinese characters loaded successfully.";
+            characterStatus.style.color = "green";
+        }
+        generatePdfBtn.disabled = false;
+    }
+}
+
 updateFontStatus();
+updateCharacterStatus();
 
