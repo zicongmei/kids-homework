@@ -14,7 +14,7 @@ let selectedCharactersBatch = [];
 /**
  * Synchronously renders a character to a temporary canvas and adds it to the PDF as an image.
  */
-function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, width, height) {
+function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, size) {
     const canvas = document.createElement('canvas');
     canvas.width = 400; 
     canvas.height = 400;
@@ -24,13 +24,13 @@ function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, width, 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     ctx.fillStyle = color;
-    ctx.font = `280px "${fontFamily}"`;
+    ctx.font = `280px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(character, canvas.width / 2, canvas.height / 2);
     
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    doc.addImage(imgData, 'JPEG', x, y, width, height);
+    doc.addImage(imgData, 'JPEG', x, y, size, size);
 }
 
 function updateStylePreview() {
@@ -39,7 +39,7 @@ function updateStylePreview() {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
     ctx.fillStyle = '#000000';
-    ctx.font = `120px "${fontFamily}"`;
+    ctx.font = `120px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('永', previewCanvas.width / 2, previewCanvas.height / 2);
@@ -47,7 +47,7 @@ function updateStylePreview() {
     // Also update the font in the batch preview items
     const items = document.querySelectorAll('.preview-char-item');
     items.forEach(item => {
-        item.style.fontFamily = `"${fontFamily}"`;
+        item.style.fontFamily = fontFamily;
     });
 }
 
@@ -74,7 +74,7 @@ function renderBatchPreview() {
         const charEl = document.createElement('div');
         charEl.className = 'preview-char-item';
         charEl.innerText = char;
-        charEl.style.fontFamily = `"${fontFamily}"`;
+        charEl.style.fontFamily = fontFamily;
         characterListDiv.appendChild(charEl);
     });
 }
@@ -85,31 +85,40 @@ function drawPage(doc, charList, fontFamily) {
     const margin = 20;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const cellWidth = (pageWidth - 2 * margin) / cols;
-    const cellHeight = (pageHeight - 2 * margin) / rows;
+    
+    // Calculate square cell size based on available space
+    const availableWidth = pageWidth - 2 * margin;
+    const availableHeight = pageHeight - 2 * margin;
+    const cellSize = Math.min(availableWidth / cols, availableHeight / rows);
+    
+    // Center the grid
+    const startX = margin + (availableWidth - cellSize * cols) / 2;
+    const startY = margin + (availableHeight - cellSize * rows) / 2;
 
     for (let i = 0; i < rows; i++) {
         const character = charList[i];
         if (!character) continue;
 
         for (let j = 0; j < cols; j++) {
-            const x = margin + j * cellWidth;
-            const y = margin + i * cellHeight;
+            const x = startX + j * cellSize;
+            const y = startY + i * cellSize;
 
+            // Draw grid lines (using native jsPDF drawing)
             doc.setDrawColor(200, 200, 200);
             doc.setLineWidth(0.1);
-            doc.rect(x, y, cellWidth, cellHeight);
+            doc.rect(x, y, cellSize, cellSize);
             
             doc.setLineDash([1, 1], 0);
-            doc.line(x, y + cellHeight / 2, x + cellWidth, y + cellHeight / 2);
-            doc.line(x + cellWidth / 2, y, x + cellWidth / 2, y + cellHeight);
+            doc.line(x, y + cellSize / 2, x + cellSize, y + cellSize / 2);
+            doc.line(x + cellSize / 2, y, x + cellSize / 2, y + cellSize);
             doc.setLineDash([], 0);
 
+            // Generate character image based on color and current font state
             const color = (j === 0) ? '#000000' : '#E5E5E5';
             const padding = 2;
             addCharacterImageToPdf(doc, character, color, fontFamily, 
                                  x + padding, y + padding, 
-                                 cellWidth - 2 * padding, cellHeight - 2 * padding);
+                                 cellSize - 2 * padding);
         }
     }
 }
