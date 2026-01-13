@@ -33,7 +33,7 @@ function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, width, 
 }
 
 function updatePreview() {
-    const character = (typeof characters !== 'undefined' && characters.length > 0) ? characters[0] : '永';
+    const character = '永';
     const fontFamily = fontSelector.value;
     
     const ctx = previewCanvas.getContext('2d');
