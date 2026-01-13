@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chinese Trace Test</title>
+</head>
+<body>
+    <h1>Chinese Trace Test</h1>
+    <div id="results"></div>
+
+    <div style="display: none;">
+        <input type="number" id="page-count" value="1" min="1">
+        <button id="generate-pdf">Generate PDF</button>
+        <div id="font-status" class="status-message"></div>
+        <div id="character-status" class="status-message"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="resources/characters.js"></script>
+    <script src="test-runner.js"></script>
+</body>
+</html>
