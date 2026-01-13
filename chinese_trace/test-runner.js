@@ -1,4 +1,3 @@
-
 const resultsDiv = document.getElementById('results');
 let testsPassed = 0;
 let testsFailed = 0;
@@ -42,6 +41,14 @@ window.jspdf = {
     }
 };
 
+// Mock font selector if not present
+if (!document.getElementById('font-family')) {
+    const select = document.createElement('select');
+    select.id = 'font-family';
+    select.innerHTML = '<option value="serif">serif</option>';
+    document.body.appendChild(select);
+}
+
 // Load trace.js and run tests
 const script = document.createElement('script');
 script.src = 'resources/trace.js';
@@ -69,7 +76,7 @@ script.onload = () => {
     // Test 3: drawPage
     try {
         const doc = new window.jspdf.jsPDF();
-        drawPage(doc, ['你', '好']);
+        drawPage(doc, ['你', '好'], 'serif');
         assert(true, "drawPage() ran without error");
     } catch (e) {
         assert(false, `drawPage() threw an error: ${e.message}`);

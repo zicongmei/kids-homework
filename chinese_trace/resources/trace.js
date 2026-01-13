@@ -2,10 +2,11 @@ window.jsPDF = window.jspdf.jsPDF;
 
 const generatePdfBtn = document.getElementById('generate-pdf');
 const pageCountInput = document.getElementById('page-count');
+const fontSelector = document.getElementById('font-family');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
 
-function getCharacterImage(character, color) {
+function getCharacterImage(character, color, fontFamily) {
     const canvas = document.createElement('canvas');
     canvas.width = 200;
     canvas.height = 200;
@@ -15,10 +16,8 @@ function getCharacterImage(character, color) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     ctx.fillStyle = color;
-    // Using "Noto Serif SC" as primary and "SimSun" (宋体) as fallback
-    // Most browsers on Windows will have "SimSun"
-    // Mac has "STSong"
-    ctx.font = '160px "Noto Serif SC", "SimSun", "宋体", "STSong", serif';
+    // Use the selected font family
+    ctx.font = `160px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(character, 100, 100);
@@ -27,12 +26,11 @@ function getCharacterImage(character, color) {
 
 function updateFontStatus() {
     if (fontStatus) {
-        fontStatus.innerHTML = "Using '宋体' (SimSun) style rendering for PDF characters.";
-        fontStatus.style.color = "#27ae60";
+        fontStatus.innerHTML = "Choose '楷体' (Kaiti) for handwriting practice or '宋体' (Songti) for reading.";
     }
 }
 
-function drawPage(doc, characters) {
+function drawPage(doc, characters, fontFamily) {
     const rows = 6;
     const cols = 5;
     const margin = 20;
@@ -54,15 +52,15 @@ function drawPage(doc, characters) {
             doc.setLineWidth(0.1);
             doc.rect(x, y, cellWidth, cellHeight);
             
-            // Optional: Draw a dashed cross inside the box for better tracing guidance
+            // Draw a dashed cross inside the box for tracing guidance
             doc.setLineDash([1, 1], 0);
             doc.line(x, y + cellHeight / 2, x + cellWidth, y + cellHeight / 2);
             doc.line(x + cellWidth / 2, y, x + cellWidth / 2, y + cellHeight);
             doc.setLineDash([], 0);
 
-            // Generate character image based on color
-            const color = (j === 0) ? '#000000' : '#E0E0E0'; // Black for first, very light gray for tracing
-            const imgData = getCharacterImage(character, color);
+            // Generate character image based on color and font
+            const color = (j === 0) ? '#000000' : '#E0E0E0';
+            const imgData = getCharacterImage(character, color, fontFamily);
             
             // Add the image to the PDF
             const padding = 2;
@@ -73,6 +71,8 @@ function drawPage(doc, characters) {
 
 generatePdfBtn.addEventListener('click', () => {
     const pageCount = parseInt(pageCountInput.value, 10);
+    const selectedFont = fontSelector.value;
+
     if (isNaN(pageCount) || pageCount < 1) {
         alert("Please enter a valid number of pages.");
         return;
@@ -89,7 +89,7 @@ generatePdfBtn.addEventListener('click', () => {
             const randomIndex = Math.floor(Math.random() * characters.length);
             selectedCharacters.push(characters[randomIndex]);
         }
-        drawPage(doc, selectedCharacters);
+        drawPage(doc, selectedCharacters, selectedFont);
     }
 
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
@@ -99,19 +99,23 @@ generatePdfBtn.addEventListener('click', () => {
 function updateCharacterStatus() {
     if (typeof characters === 'undefined' || characters.length === 0) {
         const error = `
-            <strong>Error:</strong> Chinese characters not loaded. 
-            'resources/characters.js' might be missing.
+            <strong>Error:</strong> Character library missing.
         `;
         if (characterStatus) characterStatus.innerHTML = error;
         generatePdfBtn.disabled = true;
     } else {
         if (characterStatus) {
-            characterStatus.innerHTML = "Characters loaded successfully.";
+            characterStatus.innerHTML = "Character library loaded successfully.";
             characterStatus.style.color = "#27ae60";
         }
         generatePdfBtn.disabled = false;
     }
 }
+
+// Update UI font when selector changes
+fontSelector.addEventListener('change', () => {
+    document.body.style.fontFamily = fontSelector.value;
+});
 
 updateFontStatus();
 updateCharacterStatus();
