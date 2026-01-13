@@ -5,41 +5,31 @@ const pageCountInput = document.getElementById('page-count');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
 
-function isFontAvailable(fontName) {
-    try {
-        const doc = new jsPDF();
-        doc.setFont(fontName, 'normal');
-        return true;
-    } catch (e) {
-        return false;
-    }
+function getCharacterImage(character, color) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear background (optional, but good for consistency)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = color;
+    // Using a list of common Chinese fonts as fallback
+    ctx.font = '160px "Noto Sans SC", "Microsoft YaHei", "SimHei", "STHeiti", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(character, 100, 100);
+    return canvas.toDataURL('image/png');
 }
 
 function updateFontStatus() {
-    if (!isFontAvailable('Noto Sans SC')) {
-        const warning = `
-            <strong>Warning:</strong> Chinese font not found. 
-            The generated PDF will not display characters correctly.
-            <br>
-            Please follow these steps to install the font:
-            <ol>
-                <li>Download the font <a href="https://fonts.google.com/noto/specimen/Noto+Sans+SC" target="_blank">Noto Sans SC</a> from Google Fonts. Click on "Download family".</li>
-                <li>Go to the <a href="https://rawgit.com/MrRio/jsPDF/master/fontconverter/fontconverter.html" target="_blank">jsPDF font converter</a>.</li>
-                <li>Select the .ttf file for the regular weight (e.g., NotoSansSC-Regular.ttf), and click 'Create'. This will generate a .js file.</li>
-                <li>Save the .js file as 'NotoSansSC-Regular-normal.js' in the 'chinese_trace/resources' directory.</li>
-                <li>Add the following line to 'chinese_trace/index.html' before the 'trace.js' script tag: <br>
-                    <code>&lt;script src="resources/NotoSansSC-Regular-normal.js"&gt;&lt;/script&gt;</code>
-                </li>
-            </ol>
-        `;
-        if(fontStatus) fontStatus.innerHTML = warning;
-    } else {
-        if(fontStatus) {
-            fontStatus.innerHTML = "Chinese font loaded successfully.";
-            fontStatus.style.color = "green";
-        }
+    if (fontStatus) {
+        fontStatus.innerHTML = "Using browser rendering for Chinese characters. No additional font installation required.";
+        fontStatus.style.color = "green";
     }
 }
+
 function drawPage(doc, characters) {
     const rows = 6;
     const cols = 5;
@@ -57,34 +47,31 @@ function drawPage(doc, characters) {
             const x = margin + j * cellWidth;
             const y = margin + i * cellHeight;
 
+            // Draw the grid box
             doc.setDrawColor(200, 200, 200);
+            doc.setLineWidth(0.1);
             doc.rect(x, y, cellWidth, cellHeight);
 
-            doc.setFontSize(40);
-            if (j === 0) {
-                doc.setTextColor(0, 0, 0); // Black for the first character
-            } else {
-                doc.setTextColor(200, 200, 200); // Light gray for tracing
-            }
-            doc.text(character, x + cellWidth / 2, y + cellHeight / 2, { align: 'center', baseline: 'middle' });
+            // Generate character image based on color
+            const color = (j === 0) ? '#000000' : '#D3D3D3'; // Black for first, light gray for tracing
+            const imgData = getCharacterImage(character, color);
+            
+            // Add the image to the PDF
+            // We use a slightly smaller area to avoid overlapping with borders
+            const padding = 2;
+            doc.addImage(imgData, 'PNG', x + padding, y + padding, cellWidth - 2 * padding, cellHeight - 2 * padding);
         }
     }
 }
 
 generatePdfBtn.addEventListener('click', () => {
-    if (!isFontAvailable('Noto Sans SC')) {
-        alert("Chinese font not found. Please follow the instructions on the page to install the font before generating the PDF.");
-        return;
-    }
-
     const pageCount = parseInt(pageCountInput.value, 10);
-    if (pageCount < 1) {
+    if (isNaN(pageCount) || pageCount < 1) {
         alert("Please enter a valid number of pages.");
         return;
     }
 
     const doc = new jsPDF();
-    doc.setFont('Noto Sans SC', 'normal');
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) {
@@ -121,4 +108,3 @@ function updateCharacterStatus() {
 
 updateFontStatus();
 updateCharacterStatus();
-

@@ -27,6 +27,7 @@ const mockPdf = {
     setFontSize: () => {},
     setTextColor: () => {},
     text: () => {},
+    addImage: () => {},
     addPage: () => {},
     save: () => {
         assert(true, "pdf.save() was called");
