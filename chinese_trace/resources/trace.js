@@ -4,6 +4,8 @@ const generatePdfBtn = document.getElementById('generate-pdf');
 const refreshBatchBtn = document.getElementById('refresh-batch');
 const pageCountInput = document.getElementById('page-count');
 const fontSelector = document.getElementById('font-family');
+const customFontContainer = document.getElementById('custom-font-container');
+const customFontInput = document.getElementById('custom-font-name');
 const difficultySelector = document.getElementById('difficulty-level');
 const fontStatus = document.getElementById('font-status');
 const characterStatus = document.getElementById('character-status');
@@ -34,8 +36,15 @@ function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, size) {
     doc.addImage(imgData, 'JPEG', x, y, size, size);
 }
 
+function getSelectedFontFamily() {
+    if (fontSelector.value === 'other') {
+        return customFontInput.value || 'cursive';
+    }
+    return fontSelector.value;
+}
+
 function updateStylePreview() {
-    const fontFamily = fontSelector.value;
+    const fontFamily = getSelectedFontFamily();
     const ctx = previewCanvas.getContext('2d');
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
@@ -100,7 +109,7 @@ function refreshCharacterBatch() {
 
 function renderBatchPreview() {
     characterListDiv.innerHTML = '';
-    const fontFamily = fontSelector.value;
+    const fontFamily = getSelectedFontFamily();
     
     selectedCharactersBatch.forEach(charObj => {
         const charEl = document.createElement('div');
@@ -185,7 +194,7 @@ function drawPage(doc, charList, fontFamily) {
 
 generatePdfBtn.addEventListener('click', () => {
     const pageCount = parseInt(pageCountInput.value, 10);
-    const selectedFont = fontSelector.value;
+    const selectedFont = getSelectedFontFamily();
 
     if (isNaN(pageCount) || pageCount < 1) {
         alert("Please enter a valid number of pages.");
@@ -221,6 +230,15 @@ refreshBatchBtn.addEventListener('click', () => {
 });
 
 fontSelector.addEventListener('change', () => {
+    if (fontSelector.value === 'other') {
+        customFontContainer.style.display = 'block';
+    } else {
+        customFontContainer.style.display = 'none';
+    }
+    updateStylePreview();
+});
+
+customFontInput.addEventListener('input', () => {
     updateStylePreview();
 });
 
