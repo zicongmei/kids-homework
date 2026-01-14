@@ -3,6 +3,8 @@ window.jsPDF = window.jspdf.jsPDF;
 const generatePdfBtn = document.getElementById('generate-pdf');
 const refreshBatchBtn = document.getElementById('refresh-batch');
 const pageCountInput = document.getElementById('page-count');
+const includePinyinCheckbox = document.getElementById('include-pinyin');
+const includeEnglishCheckbox = document.getElementById('include-english');
 const fontSelector = document.getElementById('font-family');
 const customFontContainer = document.getElementById('custom-font-container');
 const customFontInput = document.getElementById('custom-font-name');
@@ -14,9 +16,6 @@ const characterListDiv = document.getElementById('character-list');
 
 let selectedCharactersBatch = [];
 
-/**
- * Synchronously renders a character to a temporary canvas and adds it to the PDF as an image.
- */
 function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, size) {
     const canvas = document.createElement('canvas');
     canvas.width = 400; 
@@ -36,11 +35,31 @@ function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, size) {
     doc.addImage(imgData, 'JPEG', x, y, size, size);
 }
 
-function getSelectedFontFamily() {
-    if (fontSelector.value === 'other') {
-        return customFontInput.value || 'cursive';
-    }
-    return fontSelector.value;
+/**
+ * Renders text (Pinyin/English) to a canvas and adds it to the PDF.
+ * This ensures accented characters (Pinyin) are rendered correctly.
+ */
+function addTextImageToPdf(doc, text, x, y, maxWidth, maxHeight, fontSize, fontWeight = 'normal', color = '#646464') {
+    if (!text) return;
+    const canvas = document.createElement('canvas');
+    const scale = 2; // High resolution
+    canvas.width = maxWidth * scale;
+    canvas.height = maxHeight * scale;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = color;
+    ctx.font = `${fontWeight} ${fontSize * scale}px helvetica, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    
+    // Simple wrap text if needed or just fit
+    ctx.fillText(text, 2, canvas.height / 2, canvas.width - 4);
+    
+    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+    doc.addImage(imgData, 'JPEG', x, y - maxHeight / 2, maxWidth, maxHeight);
 }
 
 function updateStylePreview() {
@@ -127,13 +146,19 @@ function drawPage(doc, charList, fontFamily) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     
+    const showPinyin = includePinyinCheckbox.checked;
+    const showEnglish = includeEnglishCheckbox.checked;
+    const showSideText = showPinyin || showEnglish;
+
     // Calculate square cell size based on available space
-    // We allocate extra space for the English meaning on the left
     const availableWidth = pageWidth - 2 * margin;
     const availableHeight = pageHeight - 2 * margin;
-    const cellSize = Math.min(availableWidth / (cols + 1.5), availableHeight / rows);
     
-    const meaningWidth = cellSize * 1.5;
+    // If we show side text, we allocate extra space on the left
+    const colsForLayout = showSideText ? (cols + 1.5) : cols;
+    const cellSize = Math.min(availableWidth / colsForLayout, availableHeight / rows);
+    
+    const meaningWidth = showSideText ? cellSize * 1.5 : 0;
     const totalWidth = meaningWidth + cellSize * cols;
 
     // Center the grid
@@ -144,29 +169,23 @@ function drawPage(doc, charList, fontFamily) {
         const charObj = charList[i];
         if (!charObj) continue; // Skip if there aren't 6 characters for this page
 
-        // Draw Pinyin and English meaning
-        const textX = startX;
-        const textY = startY + i * cellSize + cellSize / 2;
-        
-        doc.setTextColor(100, 100, 100);
-        
-        // Pinyin
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(Math.max(10, cellSize / 2.5));
-        doc.text(charObj.pinyin, textX, textY - 4, {
-            align: 'left',
-            baseline: 'bottom',
-            maxWidth: meaningWidth - 5
-        });
-
-        // English Meaning
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(Math.max(8, cellSize / 3.5));
-        doc.text(charObj.meaning, textX, textY + 2, {
-            align: 'left',
-            baseline: 'top',
-            maxWidth: meaningWidth - 5
-        });
+        if (showSideText) {
+            const textX = startX;
+            const textY = startY + i * cellSize + cellSize / 2;
+            const textMaxW = meaningWidth - 5;
+            
+            if (showPinyin && showEnglish) {
+                // Both: Pinyin top, English bottom
+                addTextImageToPdf(doc, charObj.pinyin, textX, textY - cellSize / 6, textMaxW, cellSize / 3, 10, 'bold');
+                addTextImageToPdf(doc, charObj.meaning, textX, textY + cellSize / 6, textMaxW, cellSize / 3, 8);
+            } else if (showPinyin) {
+                // Pinyin only: Centered vertically
+                addTextImageToPdf(doc, charObj.pinyin, textX, textY, textMaxW, cellSize / 2, 12, 'bold');
+            } else if (showEnglish) {
+                // English only: Centered vertically
+                addTextImageToPdf(doc, charObj.meaning, textX, textY, textMaxW, cellSize / 2, 10);
+            }
+        }
 
         for (let j = 0; j < cols; j++) {
             const x = startX + meaningWidth + j * cellSize;
@@ -248,6 +267,14 @@ difficultySelector.addEventListener('change', () => {
 
 pageCountInput.addEventListener('change', () => {
     refreshCharacterBatch();
+});
+
+includePinyinCheckbox.addEventListener('change', () => {
+    updateStylePreview();
+});
+
+includeEnglishCheckbox.addEventListener('change', () => {
+    updateStylePreview();
 });
 
 function init() {
