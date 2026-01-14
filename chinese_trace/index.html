@@ -54,7 +54,13 @@
             <div class="button-group">
                 <button id="refresh-batch" class="secondary-btn">Regenerate Characters</button>
                 <button id="generate-pdf">Generate PDF</button>
+                <button id="debug-fonts" class="secondary-btn" style="margin-top: 10px; background-color: #6c757d;">Debug: List Fonts</button>
             </div>
+        </div>
+
+        <div id="font-list-debug" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+            <h4>Available System Fonts:</h4>
+            <div id="font-list-content"></div>
         </div>
 
         <div id="batch-preview" class="batch-preview">

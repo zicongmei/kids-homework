@@ -278,6 +278,44 @@ includeEnglishCheckbox.addEventListener('change', () => {
     updateStylePreview();
 });
 
+const debugFontsBtn = document.getElementById('debug-fonts');
+const fontListDebug = document.getElementById('font-list-debug');
+const fontListContent = document.getElementById('font-list-content');
+
+debugFontsBtn.addEventListener('click', async () => {
+    fontListDebug.style.display = fontListDebug.style.display === 'none' ? 'block' : 'none';
+    if (fontListDebug.style.display === 'none') return;
+
+    fontListContent.innerHTML = 'Scanning fonts...';
+
+    // Try Local Font Access API (Chrome 103+)
+    if ('queryLocalFonts' in window) {
+        try {
+            const fonts = await window.queryLocalFonts();
+            const fontNames = [...new Set(fonts.map(f => f.fullName))].sort();
+            fontListContent.innerHTML = fontNames.map(name => `<div>${name}</div>`).join('');
+        } catch (e) {
+            fontListContent.innerHTML = 'Error querying local fonts: ' + e.message;
+        }
+    } else {
+        // Fallback: Check a common set of Chinese fonts
+        const commonFonts = [
+            'KaiTi', 'STKaiti', 'NSimSun', 'SimSun', 'STSong', 'SimHei', 'Heiti SC', 'Microsoft YaHei', 'PingFang SC',
+            'Ma Shan Zheng', 'Noto Sans SC', 'Noto Serif SC', 'Arial', 'Times New Roman', 'Courier New', 'BiauKai', 'DFKai-SB'
+        ];
+        
+        const available = [];
+        for (const font of commonFonts) {
+            if (document.fonts.check(`12px "${font}"`)) {
+                available.push(font);
+            }
+        }
+        
+        fontListContent.innerHTML = '<i>(Local Font Access API not supported in this browser. Showing common fonts found:)</i><br><br>' + 
+                                     available.map(name => `<div>${name}</div>`).join('');
+    }
+});
+
 function init() {
     if (typeof characters === 'undefined' || characters.length === 0) {
         characterStatus.innerHTML = "Error: Character library not loaded.";
