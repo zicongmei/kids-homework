@@ -88,8 +88,8 @@ function refreshCharacterBatch() {
                 break; 
             }
             const randomIndex = Math.floor(Math.random() * currentPageUniquePool.length);
-            const char = currentPageUniquePool[randomIndex];
-            currentPageCharacters.push(char);
+            const charObj = currentPageUniquePool[randomIndex];
+            currentPageCharacters.push(charObj);
             currentPageUniquePool.splice(randomIndex, 1); // Remove to ensure uniqueness on THIS page
         }
         selectedCharactersBatch.push(...currentPageCharacters);
@@ -102,10 +102,10 @@ function renderBatchPreview() {
     characterListDiv.innerHTML = '';
     const fontFamily = fontSelector.value;
     
-    selectedCharactersBatch.forEach(char => {
+    selectedCharactersBatch.forEach(charObj => {
         const charEl = document.createElement('div');
         charEl.className = 'preview-char-item';
-        charEl.innerText = char;
+        charEl.innerText = charObj.char;
         charEl.style.fontFamily = fontFamily;
         characterListDiv.appendChild(charEl);
     });
@@ -119,20 +119,48 @@ function drawPage(doc, charList, fontFamily) {
     const pageHeight = doc.internal.pageSize.getHeight();
     
     // Calculate square cell size based on available space
+    // We allocate extra space for the English meaning on the left
     const availableWidth = pageWidth - 2 * margin;
     const availableHeight = pageHeight - 2 * margin;
-    const cellSize = Math.min(availableWidth / cols, availableHeight / rows);
+    const cellSize = Math.min(availableWidth / (cols + 1.2), availableHeight / rows);
     
+    const meaningWidth = cellSize * 1.2;
+    const totalWidth = meaningWidth + cellSize * cols;
+
     // Center the grid
-    const startX = margin + (availableWidth - cellSize * cols) / 2;
+    const startX = margin + (availableWidth - totalWidth) / 2;
     const startY = margin + (availableHeight - cellSize * rows) / 2;
 
     for (let i = 0; i < rows; i++) {
-        const character = charList[i];
-        if (!character) continue; // Skip if there aren't 6 characters for this page (e.g., if unique pool was exhausted)
+        const charObj = charList[i];
+        if (!charObj) continue; // Skip if there aren't 6 characters for this page
+
+        // Draw Pinyin and English meaning
+        const textX = startX;
+        const textY = startY + i * cellSize + cellSize / 2;
+        
+        doc.setTextColor(100, 100, 100);
+        
+        // Pinyin
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(Math.max(7, cellSize / 3.5));
+        doc.text(charObj.pinyin, textX, textY - 3, {
+            align: 'left',
+            baseline: 'bottom',
+            maxWidth: meaningWidth - 5
+        });
+
+        // English Meaning
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(Math.max(6, cellSize / 4.5));
+        doc.text(charObj.meaning, textX, textY + 1, {
+            align: 'left',
+            baseline: 'top',
+            maxWidth: meaningWidth - 5
+        });
 
         for (let j = 0; j < cols; j++) {
-            const x = startX + j * cellSize;
+            const x = startX + meaningWidth + j * cellSize;
             const y = startY + i * cellSize;
 
             // Draw grid lines (using native jsPDF drawing)
@@ -148,7 +176,7 @@ function drawPage(doc, charList, fontFamily) {
             // Generate character image based on color and current font state
             const color = (j === 0) ? '#000000' : '#E5E5E5';
             const padding = 2;
-            addCharacterImageToPdf(doc, character, color, fontFamily, 
+            addCharacterImageToPdf(doc, charObj.char, color, fontFamily, 
                                  x + padding, y + padding, 
                                  cellSize - 2 * padding);
         }

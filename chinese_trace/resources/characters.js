@@ -1,34 +1,123 @@
 /**
- * Chinese character set grouped by difficulty levels.
+ * Chinese character set grouped by difficulty levels with English meanings and Pinyin.
  */
 const charactersByLevel = {
   easy: [
-    // Numbers & Basic
-    '一', '二', '三', '十', '八', '九', '七', '六', '五', '四',
-    // Nature & Basic Concepts
-    '人', '口', '大', '小', '上', '下', '中', '天', '日', '月', '火', '水', '土', '山', '石', '木',
-    // Directions & People
-    '工', '子', '女', '父', '母'
+    { char: '一', meaning: 'one', pinyin: 'yī' },
+    { char: '二', meaning: 'two', pinyin: 'èr' },
+    { char: '三', meaning: 'three', pinyin: 'sān' },
+    { char: '十', meaning: 'ten', pinyin: 'shí' },
+    { char: '八', meaning: 'eight', pinyin: 'bā' },
+    { char: '九', meaning: 'nine', pinyin: 'jiǔ' },
+    { char: '七', meaning: 'seven', pinyin: 'qī' },
+    { char: '六', meaning: 'six', pinyin: 'liù' },
+    { char: '五', meaning: 'five', pinyin: 'wǔ' },
+    { char: '四', meaning: 'four', pinyin: 'sì' },
+    { char: '人', meaning: 'person', pinyin: 'rén' },
+    { char: '口', meaning: 'mouth', pinyin: 'kǒu' },
+    { char: '大', meaning: 'big', pinyin: 'dà' },
+    { char: '小', meaning: 'small', pinyin: 'xiǎo' },
+    { char: '上', meaning: 'up', pinyin: 'shàng' },
+    { char: '下', meaning: 'down', pinyin: 'xià' },
+    { char: '中', meaning: 'middle', pinyin: 'zhōng' },
+    { char: '天', meaning: 'sky', pinyin: 'tiān' },
+    { char: '日', meaning: 'sun', pinyin: 'rì' },
+    { char: '月', meaning: 'moon', pinyin: 'yuè' },
+    { char: '火', meaning: 'fire', pinyin: 'huǒ' },
+    { char: '水', meaning: 'water', pinyin: 'shuǐ' },
+    { char: '土', meaning: 'earth', pinyin: 'tǔ' },
+    { char: '山', meaning: 'mountain', pinyin: 'shān' },
+    { char: '石', meaning: 'stone', pinyin: 'shí' },
+    { char: '木', meaning: 'wood', pinyin: 'mù' },
+    { char: '工', meaning: 'work', pinyin: 'gōng' },
+    { char: '子', meaning: 'child', pinyin: 'zǐ' },
+    { char: '女', meaning: 'woman', pinyin: 'nǚ' },
+    { char: '父', meaning: 'father', pinyin: 'fù' },
+    { char: '母', meaning: 'mother', pinyin: 'mǔ' }
   ],
   medium: [
-    // Numbers & Body Parts
-    '百', '千', '万', '手', '足', '目', '耳', '头', '心', '牙', '舌',
-    // Nature & Directions
-    '地', '星', '云', '风', '田', '禾', '左', '右', '前', '后', '东', '西', '南', '北', '里', '外',
-    // Plants & Animals
-    '牛', '羊', '马', '鸟', '鱼', '虫', '草', '花', '叶', '瓜', '果',
-    // Basic Concepts & Actions
-    '多', '少', '长', '短', '开', '关', '出', '入', '来', '去', '立', '走', '见'
+    { char: '百', meaning: 'hundred', pinyin: 'bǎi' },
+    { char: '千', meaning: 'thousand', pinyin: 'qiān' },
+    { char: '万', meaning: 'ten thousand', pinyin: 'wàn' },
+    { char: '手', meaning: 'hand', pinyin: 'shǒu' },
+    { char: '足', meaning: 'foot', pinyin: 'zú' },
+    { char: '目', meaning: 'eye', pinyin: 'mù' },
+    { char: '耳', meaning: 'ear', pinyin: 'ěr' },
+    { char: '头', meaning: 'head', pinyin: 'tóu' },
+    { char: '心', meaning: 'heart', pinyin: 'xīn' },
+    { char: '牙', meaning: 'tooth', pinyin: 'yá' },
+    { char: '舌', meaning: 'tongue', pinyin: 'shé' },
+    { char: '地', meaning: 'ground', pinyin: 'dì' },
+    { char: '星', meaning: 'star', pinyin: 'xīng' },
+    { char: '云', meaning: 'cloud', pinyin: 'yún' },
+    { char: '风', meaning: 'wind', pinyin: 'fēng' },
+    { char: '田', meaning: 'field', pinyin: 'tián' },
+    { char: '禾', meaning: 'grain', pinyin: 'hé' },
+    { char: '左', meaning: 'left', pinyin: 'zuǒ' },
+    { char: '右', meaning: 'right', pinyin: 'yòu' },
+    { char: '前', meaning: 'front', pinyin: 'qián' },
+    { char: '后', meaning: 'back', pinyin: 'hòu' },
+    { char: '东', meaning: 'east', pinyin: 'dōng' },
+    { char: '西', meaning: 'west', pinyin: 'xī' },
+    { char: '南', meaning: 'south', pinyin: 'nán' },
+    { char: '北', meaning: 'north', pinyin: 'běi' },
+    { char: '里', meaning: 'inside', pinyin: 'lǐ' },
+    { char: '外', meaning: 'outside', pinyin: 'wài' },
+    { char: '牛', meaning: 'cow', pinyin: 'niú' },
+    { char: '羊', meaning: 'sheep', pinyin: 'yáng' },
+    { char: '马', meaning: 'horse', pinyin: 'mǎ' },
+    { char: '鸟', meaning: 'bird', pinyin: 'niǎo' },
+    { char: '鱼', meaning: 'fish', pinyin: 'yú' },
+    { char: '虫', meaning: 'insect', pinyin: 'chóng' },
+    { char: '草', meaning: 'grass', pinyin: 'cǎo' },
+    { char: '花', meaning: 'flower', pinyin: 'huā' },
+    { char: '叶', meaning: 'leaf', pinyin: 'yè' },
+    { char: '瓜', meaning: 'melon', pinyin: 'guā' },
+    { char: '果', meaning: 'fruit', pinyin: 'guǒ' },
+    { char: '多', meaning: 'many', pinyin: 'duō' },
+    { char: '少', meaning: 'few', pinyin: 'shǎo' },
+    { char: '长', meaning: 'long', pinyin: 'cháng' },
+    { char: '短', meaning: 'short', pinyin: 'duǎn' },
+    { char: '开', meaning: 'open', pinyin: 'kāi' },
+    { char: '关', meaning: 'close', pinyin: 'guān' },
+    { char: '出', meaning: 'exit', pinyin: 'chū' },
+    { char: '入', meaning: 'enter', pinyin: 'rù' },
+    { char: '来', meaning: 'come', pinyin: 'lái' },
+    { char: '去', meaning: 'go', pinyin: 'qù' },
+    { char: '立', meaning: 'stand', pinyin: 'lì' },
+    { char: '走', meaning: 'walk', pinyin: 'zǒu' },
+    { char: '见', meaning: 'see', pinyin: 'jiàn' }
   ],
   difficulty: [
-    // More complex structures
-    '雨', '雪', '高', '低', '坐', '跑', '飞', '问', '说', '读', '写',
-    '的', '了', '是', '不', '我', '你', '他', '她', '它', '们', '也', '都',
-    '农', '老', '少'
+    { char: '雨', meaning: 'rain', pinyin: 'yǔ' },
+    { char: '雪', meaning: 'snow', pinyin: 'xuě' },
+    { char: '高', meaning: 'high', pinyin: 'gāo' },
+    { char: '低', meaning: 'low', pinyin: 'dī' },
+    { char: '坐', meaning: 'sit', pinyin: 'zuò' },
+    { char: '跑', meaning: 'run', pinyin: 'pǎo' },
+    { char: '飞', meaning: 'fly', pinyin: 'fēi' },
+    { char: '问', meaning: 'ask', pinyin: 'wèn' },
+    { char: '说', meaning: 'speak', pinyin: 'shuō' },
+    { char: '读', meaning: 'read', pinyin: 'dú' },
+    { char: '写', meaning: 'write', pinyin: 'xiě' },
+    { char: '的', meaning: 'possessive', pinyin: 'de' },
+    { char: '了', meaning: 'completed', pinyin: 'le' },
+    { char: '是', meaning: 'is', pinyin: 'shì' },
+    { char: '不', meaning: 'not', pinyin: 'bù' },
+    { char: '我', meaning: 'I', pinyin: 'wǒ' },
+    { char: '你', meaning: 'you', pinyin: 'nǐ' },
+    { char: '他', meaning: 'he', pinyin: 'tā' },
+    { char: '她', meaning: 'she', pinyin: 'tā' },
+    { char: '它', meaning: 'it', pinyin: 'tā' },
+    { char: '们', meaning: 'plural', pinyin: 'men' },
+    { char: '也', meaning: 'also', pinyin: 'yě' },
+    { char: '都', meaning: 'all', pinyin: 'dōu' },
+    { char: '农', meaning: 'farm', pinyin: 'nóng' },
+    { char: '老', meaning: 'old', pinyin: 'lǎo' },
+    { char: '少', meaning: 'young', pinyin: 'shào' }
   ]
 };
 
-// For backward compatibility if needed, but we'll update trace.js
 const characters = [
   ...charactersByLevel.easy,
   ...charactersByLevel.medium,
