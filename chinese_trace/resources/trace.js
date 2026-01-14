@@ -18,48 +18,48 @@ let selectedCharactersBatch = [];
 
 function addCharacterImageToPdf(doc, character, color, fontFamily, x, y, size) {
     const canvas = document.createElement('canvas');
-    canvas.width = 400; 
-    canvas.height = 400;
+    const scale = 4; // Increase resolution
+    canvas.width = size * scale * 4; // Higher internal resolution
+    canvas.height = size * scale * 4;
     const ctx = canvas.getContext('2d');
     
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     ctx.fillStyle = color;
-    ctx.font = `280px ${fontFamily}`;
+    ctx.font = `${(canvas.width * 0.7)}px ${fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(character, canvas.width / 2, canvas.height / 2);
     
-    const imgData = canvas.toDataURL('image/jpeg', 1.0);
-    doc.addImage(imgData, 'JPEG', x, y, size, size);
+    const imgData = canvas.toDataURL('image/png');
+    doc.addImage(imgData, 'PNG', x, y, size, size, undefined, 'FAST');
 }
 
 /**
  * Renders text (Pinyin/English) to a canvas and adds it to the PDF.
- * This ensures accented characters (Pinyin) are rendered correctly.
+ * This ensures accented characters (Pinyin) are rendered correctly at high resolution.
  */
 function addTextImageToPdf(doc, text, x, y, maxWidth, maxHeight, fontSize, fontWeight = 'normal', color = '#646464') {
     if (!text) return;
     const canvas = document.createElement('canvas');
-    const scale = 2; // High resolution
+    const scale = 8; // Very high resolution for small text
     canvas.width = maxWidth * scale;
     canvas.height = maxHeight * scale;
     const ctx = canvas.getContext('2d');
     
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Use clearRect and PNG for best quality/transparency
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     ctx.fillStyle = color;
-    ctx.font = `${fontWeight} ${fontSize * scale}px helvetica, sans-serif`;
+    ctx.font = `${fontWeight} ${fontSize * scale}px helvetica, arial, sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     
-    // Simple wrap text if needed or just fit
     ctx.fillText(text, 2, canvas.height / 2, canvas.width - 4);
     
-    const imgData = canvas.toDataURL('image/jpeg', 0.9);
-    doc.addImage(imgData, 'JPEG', x, y - maxHeight / 2, maxWidth, maxHeight);
+    const imgData = canvas.toDataURL('image/png');
+    doc.addImage(imgData, 'PNG', x, y - maxHeight / 2, maxWidth, maxHeight, undefined, 'FAST');
 }
 
 function getSelectedFontFamily() {
