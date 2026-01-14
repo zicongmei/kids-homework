@@ -122,9 +122,9 @@ function drawPage(doc, charList, fontFamily) {
     // We allocate extra space for the English meaning on the left
     const availableWidth = pageWidth - 2 * margin;
     const availableHeight = pageHeight - 2 * margin;
-    const cellSize = Math.min(availableWidth / (cols + 1.2), availableHeight / rows);
+    const cellSize = Math.min(availableWidth / (cols + 1.5), availableHeight / rows);
     
-    const meaningWidth = cellSize * 1.2;
+    const meaningWidth = cellSize * 1.5;
     const totalWidth = meaningWidth + cellSize * cols;
 
     // Center the grid
@@ -143,8 +143,8 @@ function drawPage(doc, charList, fontFamily) {
         
         // Pinyin
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(Math.max(7, cellSize / 3.5));
-        doc.text(charObj.pinyin, textX, textY - 3, {
+        doc.setFontSize(Math.max(10, cellSize / 2.5));
+        doc.text(charObj.pinyin, textX, textY - 4, {
             align: 'left',
             baseline: 'bottom',
             maxWidth: meaningWidth - 5
@@ -152,8 +152,8 @@ function drawPage(doc, charList, fontFamily) {
 
         // English Meaning
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(Math.max(6, cellSize / 4.5));
-        doc.text(charObj.meaning, textX, textY + 1, {
+        doc.setFontSize(Math.max(8, cellSize / 3.5));
+        doc.text(charObj.meaning, textX, textY + 2, {
             align: 'left',
             baseline: 'top',
             maxWidth: meaningWidth - 5
