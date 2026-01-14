@@ -54,22 +54,45 @@ function updateStylePreview() {
 
 function refreshCharacterBatch() {
     const pageCount = parseInt(pageCountInput.value, 10) || 1;
-    const totalCharsNeeded = pageCount * 6;
     const level = difficultySelector.value;
-    selectedCharactersBatch = [];
+    selectedCharactersBatch = []; // Clear previous batch
     
-    let availableCharacters = [];
+    let baseAvailableCharacters = [];
     if (level === 'all') {
-        availableCharacters = characters;
+        baseAvailableCharacters = characters;
     } else {
-        availableCharacters = charactersByLevel[level];
+        baseAvailableCharacters = charactersByLevel[level];
     }
     
-    if (!availableCharacters || availableCharacters.length === 0) return;
+    if (!baseAvailableCharacters || baseAvailableCharacters.length === 0) {
+        characterStatus.innerHTML = "Error: No characters available for selected difficulty.";
+        return;
+    }
 
-    for (let i = 0; i < totalCharsNeeded; i++) {
-        const randomIndex = Math.floor(Math.random() * availableCharacters.length);
-        selectedCharactersBatch.push(availableCharacters[randomIndex]);
+    // Generate unique characters for each page
+    for (let p = 0; p < pageCount; p++) {
+        let currentPageCharacters = [];
+        // Create a copy of the available characters for this page's selection process
+        let currentPageUniquePool = [...baseAvailableCharacters]; 
+
+        for (let i = 0; i < 6; i++) { // Each page has 6 character slots
+            if (currentPageUniquePool.length === 0) {
+                // If the pool for this page is exhausted before 6 unique characters are picked,
+                // it means there aren't enough unique characters in the selected library to fill this page uniquely.
+                // In this case, we'll stop adding characters to this page and proceed with fewer than 6,
+                // or you could choose to re-populate currentPageUniquePool from baseAvailableCharacters
+                // to fill the remaining slots, which would introduce repeats *within this page*.
+                // For "no repeated character in each page", we prioritize uniqueness and stop.
+                // Given the typical size of Chinese character sets, this is unlikely for 6 characters.
+                console.warn(`Not enough unique characters from the selected library (${level}) to fill page ${p+1} completely. Only ${currentPageCharacters.length} unique characters added.`);
+                break; 
+            }
+            const randomIndex = Math.floor(Math.random() * currentPageUniquePool.length);
+            const char = currentPageUniquePool[randomIndex];
+            currentPageCharacters.push(char);
+            currentPageUniquePool.splice(randomIndex, 1); // Remove to ensure uniqueness on THIS page
+        }
+        selectedCharactersBatch.push(...currentPageCharacters);
     }
     
     renderBatchPreview();
@@ -106,7 +129,7 @@ function drawPage(doc, charList, fontFamily) {
 
     for (let i = 0; i < rows; i++) {
         const character = charList[i];
-        if (!character) continue;
+        if (!character) continue; // Skip if there aren't 6 characters for this page (e.g., if unique pool was exhausted)
 
         for (let j = 0; j < cols; j++) {
             const x = startX + j * cellSize;
@@ -142,7 +165,11 @@ generatePdfBtn.addEventListener('click', () => {
     }
     
     if (selectedCharactersBatch.length === 0) {
-        refreshCharacterBatch();
+        refreshCharacterBatch(); // Ensure characters are generated if not already
+    }
+    if (selectedCharactersBatch.length === 0) {
+        alert("No characters available to generate. Please check difficulty level.");
+        return;
     }
 
     const doc = new jsPDF();
@@ -150,7 +177,8 @@ generatePdfBtn.addEventListener('click', () => {
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) doc.addPage();
-        // Take 6 characters for this page from the pre-selected batch
+        // Take 6 characters for this page from the pre-selected batch.
+        // If the batch has fewer than 6 characters for the last page, it will take what's left.
         const pageChars = selectedCharactersBatch.slice(p * 6, (p + 1) * 6);
         drawPage(doc, pageChars, selectedFont);
     }
@@ -178,7 +206,7 @@ pageCountInput.addEventListener('change', () => {
 
 function init() {
     if (typeof characters === 'undefined' || characters.length === 0) {
-        characterStatus.innerHTML = "Error: Library not loaded.";
+        characterStatus.innerHTML = "Error: Character library not loaded.";
         generatePdfBtn.disabled = true;
         refreshBatchBtn.disabled = true;
     } else {
@@ -187,6 +215,7 @@ function init() {
             updateStylePreview();
             refreshCharacterBatch();
         });
+        // Fallback for fonts not immediately ready or if document.fonts.ready doesn't fire as expected
         setTimeout(() => {
             updateStylePreview();
             if (selectedCharactersBatch.length === 0) refreshCharacterBatch();
