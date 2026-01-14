@@ -62,6 +62,13 @@ function addTextImageToPdf(doc, text, x, y, maxWidth, maxHeight, fontSize, fontW
     doc.addImage(imgData, 'JPEG', x, y - maxHeight / 2, maxWidth, maxHeight);
 }
 
+function getSelectedFontFamily() {
+    if (fontSelector.value === 'other') {
+        return customFontInput.value || 'cursive';
+    }
+    return fontSelector.value;
+}
+
 function updateStylePreview() {
     const fontFamily = getSelectedFontFamily();
     const ctx = previewCanvas.getContext('2d');
