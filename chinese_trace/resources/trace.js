@@ -110,15 +110,10 @@ function refreshCharacterBatch() {
         // Create a copy of the available characters for this page's selection process
         let currentPageUniquePool = [...baseAvailableCharacters]; 
 
-        for (let i = 0; i < 6; i++) { // Each page has 6 character slots
+        for (let i = 0; i < 5; i++) { // Each page has 5 character slots
             if (currentPageUniquePool.length === 0) {
-                // If the pool for this page is exhausted before 6 unique characters are picked,
+                // If the pool for this page is exhausted before 5 unique characters are picked,
                 // it means there aren't enough unique characters in the selected library to fill this page uniquely.
-                // In this case, we'll stop adding characters to this page and proceed with fewer than 6,
-                // or you could choose to re-populate currentPageUniquePool from baseAvailableCharacters
-                // to fill the remaining slots, which would introduce repeats *within this page*.
-                // For "no repeated character in each page", we prioritize uniqueness and stop.
-                // Given the typical size of Chinese character sets, this is unlikely for 6 characters.
                 console.warn(`Not enough unique characters from the selected library (${level}) to fill page ${p+1} completely. Only ${currentPageCharacters.length} unique characters added.`);
                 break; 
             }
@@ -147,9 +142,9 @@ function renderBatchPreview() {
 }
 
 function drawPage(doc, charList, fontFamily) {
-    const rows = 6;
-    const cols = 5;
-    const margin = 20;
+    const rows = 5;
+    const cols = 6;
+    const margin = 15; // Slightly smaller margin for landscape
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     
@@ -162,10 +157,10 @@ function drawPage(doc, charList, fontFamily) {
     const availableHeight = pageHeight - 2 * margin;
     
     // If we show side text, we allocate extra space on the left
-    const colsForLayout = showSideText ? (cols + 1.5) : cols;
+    const colsForLayout = showSideText ? (cols + 1.2) : cols;
     const cellSize = Math.min(availableWidth / colsForLayout, availableHeight / rows);
     
-    const meaningWidth = showSideText ? cellSize * 1.5 : 0;
+    const meaningWidth = showSideText ? cellSize * 1.2 : 0;
     const totalWidth = meaningWidth + cellSize * cols;
 
     // Center the grid
@@ -174,7 +169,7 @@ function drawPage(doc, charList, fontFamily) {
 
     for (let i = 0; i < rows; i++) {
         const charObj = charList[i];
-        if (!charObj) continue; // Skip if there aren't 6 characters for this page
+        if (!charObj) continue; // Skip if there aren't 5 characters for this page
 
         if (showSideText) {
             const textX = startX;
@@ -235,14 +230,13 @@ generatePdfBtn.addEventListener('click', () => {
         return;
     }
 
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: 'landscape' });
     if (fontStatus) fontStatus.innerHTML = "Generating PDF...";
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) doc.addPage();
-        // Take 6 characters for this page from the pre-selected batch.
-        // If the batch has fewer than 6 characters for the last page, it will take what's left.
-        const pageChars = selectedCharactersBatch.slice(p * 6, (p + 1) * 6);
+        // Take 5 characters for this page from the pre-selected batch.
+        const pageChars = selectedCharactersBatch.slice(p * 5, (p + 1) * 5);
         drawPage(doc, pageChars, selectedFont);
     }
 
