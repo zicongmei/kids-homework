@@ -3,6 +3,8 @@ window.jsPDF = window.jspdf.jsPDF;
 const generatePdfBtn = document.getElementById('generate-pdf');
 const refreshBatchBtn = document.getElementById('refresh-batch');
 const pageCountInput = document.getElementById('page-count');
+const rowsInput = document.getElementById('rows-count');
+const colsInput = document.getElementById('cols-count');
 const includePinyinCheckbox = document.getElementById('include-pinyin');
 const includeEnglishCheckbox = document.getElementById('include-english');
 const fontSelector = document.getElementById('font-family');
@@ -89,6 +91,7 @@ function updateStylePreview() {
 
 function refreshCharacterBatch() {
     const pageCount = parseInt(pageCountInput.value, 10) || 1;
+    const rowsPerPage = parseInt(rowsInput.value, 10) || 5;
     const level = difficultySelector.value;
     selectedCharactersBatch = []; // Clear previous batch
     
@@ -104,16 +107,14 @@ function refreshCharacterBatch() {
         return;
     }
 
-    // Generate unique characters for each page
+    // Generate unique characters for each page (rowsPerPage characters per page)
     for (let p = 0; p < pageCount; p++) {
         let currentPageCharacters = [];
         // Create a copy of the available characters for this page's selection process
         let currentPageUniquePool = [...baseAvailableCharacters]; 
 
-        for (let i = 0; i < 5; i++) { // Each page has 5 character slots
+        for (let i = 0; i < rowsPerPage; i++) { // Each page has rowsPerPage character slots
             if (currentPageUniquePool.length === 0) {
-                // If the pool for this page is exhausted before 5 unique characters are picked,
-                // it means there aren't enough unique characters in the selected library to fill this page uniquely.
                 console.warn(`Not enough unique characters from the selected library (${level}) to fill page ${p+1} completely. Only ${currentPageCharacters.length} unique characters added.`);
                 break; 
             }
@@ -142,8 +143,8 @@ function renderBatchPreview() {
 }
 
 function drawPage(doc, charList, fontFamily) {
-    const rows = 5;
-    const cols = 6;
+    const rows = parseInt(rowsInput.value, 10) || 5;
+    const cols = parseInt(colsInput.value, 10) || 6;
     const margin = 15; // Slightly smaller margin for landscape
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -169,7 +170,7 @@ function drawPage(doc, charList, fontFamily) {
 
     for (let i = 0; i < rows; i++) {
         const charObj = charList[i];
-        if (!charObj) continue; // Skip if there aren't 5 characters for this page
+        if (!charObj) continue; // Skip if there aren't enough characters for this page
 
         if (showSideText) {
             const textX = startX;
@@ -189,7 +190,7 @@ function drawPage(doc, charList, fontFamily) {
             }
         }
 
-        for (let j = 0; j < cols; j++) {
+            for (let j = 0; j < cols; j++) {
             const x = startX + meaningWidth + j * cellSize;
             const y = startY + i * cellSize;
 
@@ -235,8 +236,9 @@ generatePdfBtn.addEventListener('click', () => {
 
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) doc.addPage();
-        // Take 5 characters for this page from the pre-selected batch.
-        const pageChars = selectedCharactersBatch.slice(p * 5, (p + 1) * 5);
+        // Take rowsPerPage characters for this page from the pre-selected batch.
+        const rowsPerPage = parseInt(rowsInput.value, 10) || 5;
+        const pageChars = selectedCharactersBatch.slice(p * rowsPerPage, (p + 1) * rowsPerPage);
         drawPage(doc, pageChars, selectedFont);
     }
 
@@ -267,6 +269,15 @@ difficultySelector.addEventListener('change', () => {
 });
 
 pageCountInput.addEventListener('change', () => {
+    refreshCharacterBatch();
+});
+
+rowsInput.addEventListener('change', () => {
+    refreshCharacterBatch();
+});
+
+colsInput.addEventListener('change', () => {
+    // Columns only affect layout; regenerate preview to reflect layout change
     refreshCharacterBatch();
 });
 
