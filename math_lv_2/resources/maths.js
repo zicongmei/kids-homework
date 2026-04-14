@@ -555,7 +555,7 @@ function generate9x9Homework() {
             all9x9Problems.push({ num1: r, num2: c, operator: '×' });
         }
     }
-    const PROBLEMS_TO_DISPLAY_ON_PAGE = all9x9Problems.length; // 81 problems
+    const PROBLEMS_TO_DISPLAY_9X9 = all9x9Problems.length; // 81 problems
 
     // Layout constants for fitting 81 problems on a landscape page
     // FONT_SIZE_9X9 and ANSWER_LINE_LENGTH_PT_9X9 are global now
