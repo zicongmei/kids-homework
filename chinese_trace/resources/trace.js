@@ -91,7 +91,7 @@ function updateStylePreview() {
 
 function refreshCharacterBatch() {
     const pageCount = parseInt(pageCountInput.value, 10) || 1;
-    const rowsPerPage = parseInt(rowsInput.value, 10) || 5;
+    const rowsPerPage = parseInt(rowsInput.value, 10) || 7;
     const level = difficultySelector.value;
     selectedCharactersBatch = []; // Clear previous batch
     
@@ -115,6 +115,8 @@ function refreshCharacterBatch() {
 
         for (let i = 0; i < rowsPerPage; i++) { // Each page has rowsPerPage character slots
             if (currentPageUniquePool.length === 0) {
+                // If the pool for this page is exhausted before the slots are filled,
+                // it means there aren't enough unique characters in the selected library.
                 console.warn(`Not enough unique characters from the selected library (${level}) to fill page ${p+1} completely. Only ${currentPageCharacters.length} unique characters added.`);
                 break; 
             }
@@ -143,8 +145,8 @@ function renderBatchPreview() {
 }
 
 function drawPage(doc, charList, fontFamily) {
-    const rows = parseInt(rowsInput.value, 10) || 5;
-    const cols = parseInt(colsInput.value, 10) || 6;
+    const rows = parseInt(rowsInput.value, 10) || 7;
+    const cols = parseInt(colsInput.value, 10) || 9;
     const margin = 15; // Slightly smaller margin for landscape
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -190,7 +192,7 @@ function drawPage(doc, charList, fontFamily) {
             }
         }
 
-            for (let j = 0; j < cols; j++) {
+        for (let j = 0; j < cols; j++) {
             const x = startX + meaningWidth + j * cellSize;
             const y = startY + i * cellSize;
 
@@ -237,7 +239,7 @@ generatePdfBtn.addEventListener('click', () => {
     for (let p = 0; p < pageCount; p++) {
         if (p > 0) doc.addPage();
         // Take rowsPerPage characters for this page from the pre-selected batch.
-        const rowsPerPage = parseInt(rowsInput.value, 10) || 5;
+        const rowsPerPage = parseInt(rowsInput.value, 10) || 7;
         const pageChars = selectedCharactersBatch.slice(p * rowsPerPage, (p + 1) * rowsPerPage);
         drawPage(doc, pageChars, selectedFont);
     }
