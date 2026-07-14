@@ -55,6 +55,12 @@
             border: 1px solid #ccc;
         }
 
+        input[type="checkbox"] {
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -86,6 +92,10 @@
 
             input[type="number"] {
                 width: 60px; /* Restore specific width for number input */
+            }
+
+            input[type="checkbox"] {
+                width: auto;
             }
         }
 
@@ -127,8 +137,12 @@
             <label for="numDivMixedMultiplyPerPage">Division Questions per page (max 12):</label>
             <input type="number" id="numDivMixedMultiplyPerPage" value="0" min="0" max="12">
         </div>
+        <div>
+            <label for="include9x9MixedMultiply">Include 9x9 Multiplication Table on back:</label>
+            <input type="checkbox" id="include9x9MixedMultiply" checked>
+        </div>
         <button onclick="generateMixedMultiplicationHomework()">Generate Mixed Multiplication/Division PDF</button>
-        <p>For each sheet, creates 2 landscape pages: Page 1 is a mix of 2-digit by 1-digit multiplication (vertical) and division problems (vertical, no remainder, result < 10), Page 2 is the 9x9 multiplication table.</p>
+        <p>For each sheet, creates landscape pages with a mix of 2-digit by 1-digit multiplication (vertical) and division problems (vertical, no remainder, result < 10), and optionally includes the 9x9 multiplication table on the back.</p>
     </div>
 
     <div class="controls">
@@ -137,8 +151,12 @@
             <label for="numSheetsTwoDigitMultiply">Number of Sheets:</label>
             <input type="number" id="numSheetsTwoDigitMultiply" value="1" min="1" max="10">
         </div>
+        <div>
+            <label for="include9x9TwoDigitMultiply">Include 9x9 Multiplication Table on back:</label>
+            <input type="checkbox" id="include9x9TwoDigitMultiply" checked>
+        </div>
         <button onclick="generateTwoDigitMultiplicationHomework()">Generate 2x2 Multiplication PDF</button>
-        <p>For each sheet, creates 2 landscape pages: Page 1 is eight 2-digit by 2-digit multiplication problems (vertical format), Page 2 is the 9x9 multiplication table.</p>
+        <p>For each sheet, creates landscape pages with eight 2-digit by 2-digit multiplication problems (vertical format), and optionally includes the 9x9 multiplication table on the back.</p>
     </div>
 
     <div class="controls">

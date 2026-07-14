@@ -635,6 +635,7 @@ function generateMixedMultiplicationHomework() {
 
     // Get number of division questions requested for the mixed page
     const requestedDivMixed = parseInt(document.getElementById('numDivMixedMultiplyPerPage').value) || 0;
+    const include9x9 = document.getElementById('include9x9MixedMultiply').checked;
 
     doc.setFont('courier', 'normal');
     console.log("[generateMixedMultiplicationHomework] Font set to courier.");
@@ -738,51 +739,52 @@ function generateMixedMultiplicationHomework() {
         console.log(`[generateMixedMultiplicationHomework] Finished page 1 (Vertical Mixed, Landscape) for sheet ${sheet + 1}`);
 
         // --- Page 2: 9x9 Multiplication Table (Landscape) ---
-        // This page will always be added, thus it's always a new page after page 1.
-        doc.addPage({ orientation: 'l', format: 'letter' });
-        console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
-        doc.setFontSize(FONT_SIZE_9X9); // Set font size for 9x9 table
-        console.log(`[generateMixedMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+        if (include9x9) {
+            doc.addPage({ orientation: 'l', format: 'letter' });
+            console.log(`[generateMixedMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
+            doc.setFontSize(FONT_SIZE_9X9); // Set font size for 9x9 table
+            console.log(`[generateMixedMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
 
-        // Landscape page dimensions (CONTENT_WIDTH_L_PT, CONTENT_HEIGHT_L_PT) are already defined.
-        // Global constants for 9x9 layout: NUM_COLS_9X9, NUM_ROWS_9X9, FONT_SIZE_9X9, ANSWER_LINE_LENGTH_PT_9X9.
+            // Landscape page dimensions (CONTENT_WIDTH_L_PT, CONTENT_HEIGHT_L_PT) are already defined.
+            // Global constants for 9x9 layout: NUM_COLS_9X9, NUM_ROWS_9X9, FONT_SIZE_9X9, ANSWER_LINE_LENGTH_PT_9X9.
 
-        let all9x9ProblemsPage2 = []; // Use a distinct name for local variable
-        for (let r = 1; r <= 9; r++) {
-            for (let c = 1; c <= 9; c++) {
-                all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+            let all9x9ProblemsPage2 = []; // Use a distinct name for local variable
+            for (let r = 1; r <= 9; r++) {
+                for (let c = 1; c <= 9; c++) {
+                    all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+                }
             }
+            const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
+
+            const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
+            const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
+
+            for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
+                const problem = all9x9ProblemsPage2[i];
+                const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
+                const problemTextWidth = doc.getTextWidth(problemText); // Using current font size (FONT_SIZE_9X9)
+                const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
+
+                const colIndex = i % NUM_COLS_9X9;
+                const rowIndex = Math.floor(i / NUM_COLS_9X9);
+
+                const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
+                const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
+                
+                const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
+                const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
+                
+                doc.text(problemText, xPos_L, yTextBaseline_L);
+
+                const lineStartX_9x9 = xPos_L + problemTextWidth;
+                const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
+                const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
+                
+                doc.setLineWidth(0.75);
+                doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
+            }
+            console.log(`[generateMixedMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
         }
-        const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
-
-        const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
-        const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
-
-        for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
-            const problem = all9x9ProblemsPage2[i];
-            const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
-            const problemTextWidth = doc.getTextWidth(problemText); // Using current font size (FONT_SIZE_9X9)
-            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
-
-            const colIndex = i % NUM_COLS_9X9;
-            const rowIndex = Math.floor(i / NUM_COLS_9X9);
-
-            const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
-            const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
-            
-            const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
-            const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
-            
-            doc.text(problemText, xPos_L, yTextBaseline_L);
-
-            const lineStartX_9x9 = xPos_L + problemTextWidth;
-            const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
-            const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
-            
-            doc.setLineWidth(0.75);
-            doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
-        }
-        console.log(`[generateMixedMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
     }
 
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
@@ -805,6 +807,7 @@ function generateTwoDigitMultiplicationHomework() {
     const numSheetsInput = document.getElementById('numSheetsTwoDigitMultiply'); // New ID for input
     const numSheets = parseInt(numSheetsInput.value) || 1;
     console.log(`[generateTwoDigitMultiplicationHomework] Number of sheets requested: ${numSheets}`);
+    const include9x9 = document.getElementById('include9x9TwoDigitMultiply').checked;
 
     doc.setFont('courier', 'normal');
     console.log("[generateTwoDigitMultiplicationHomework] Font set to courier.");
@@ -870,47 +873,49 @@ function generateTwoDigitMultiplicationHomework() {
         console.log(`[generateTwoDigitMultiplicationHomework] Finished page 1 (2x2 Vertical Multiplication, Landscape) for sheet ${sheet + 1}`);
 
         // --- Page 2: 9x9 Multiplication Table (Landscape) ---
-        doc.addPage({ orientation: 'l', format: 'letter' });
-        console.log(`[generateTwoDigitMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
-        doc.setFontSize(FONT_SIZE_9X9); 
-        console.log(`[generateTwoDigitMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
+        if (include9x9) {
+            doc.addPage({ orientation: 'l', format: 'letter' });
+            console.log(`[generateTwoDigitMultiplicationHomework] Added new LANDSCAPE page for sheet ${sheet + 1}, page 2 (9x9 Table)`);
+            doc.setFontSize(FONT_SIZE_9X9); 
+            console.log(`[generateTwoDigitMultiplicationHomework] Generating page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
 
-        let all9x9ProblemsPage2 = []; 
-        for (let r = 1; r <= 9; r++) {
-            for (let c = 1; c <= 9; c++) {
-                all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+            let all9x9ProblemsPage2 = []; 
+            for (let r = 1; r <= 9; r++) {
+                for (let c = 1; c <= 9; c++) {
+                    all9x9ProblemsPage2.push({ num1: r, num2: c, operator: '×' });
+                }
             }
+            const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
+
+            const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
+            const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
+
+            for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
+                const problem = all9x9ProblemsPage2[i];
+                const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
+                const problemTextWidth = doc.getTextWidth(problemText); 
+                const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
+
+                const colIndex = i % NUM_COLS_9X9;
+                const rowIndex = Math.floor(i / NUM_COLS_9X9);
+
+                const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
+                const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
+                
+                const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
+                const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
+                
+                doc.text(problemText, xPos_L, yTextBaseline_L);
+
+                const lineStartX_9x9 = xPos_L + problemTextWidth;
+                const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
+                const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
+                
+                doc.setLineWidth(0.75);
+                doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
+            }
+            console.log(`[generateTwoDigitMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
         }
-        const PROBLEMS_TO_DISPLAY_9X9 = all9x9ProblemsPage2.length;
-
-        const CELL_WIDTH_9X9_L = CONTENT_WIDTH_L_PT / NUM_COLS_9X9;
-        const CELL_HEIGHT_9X9_L = CONTENT_HEIGHT_L_PT / NUM_ROWS_9X9;
-
-        for (let i = 0; i < PROBLEMS_TO_DISPLAY_9X9; i++) {
-            const problem = all9x9ProblemsPage2[i];
-            const problemText = `${problem.num1}${problem.operator}${problem.num2} = `;
-            const problemTextWidth = doc.getTextWidth(problemText); 
-            const totalProblemBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_PT_9X9;
-
-            const colIndex = i % NUM_COLS_9X9;
-            const rowIndex = Math.floor(i / NUM_COLS_9X9);
-
-            const cellStartX_L = MARGIN_PT + (colIndex * CELL_WIDTH_9X9_L);
-            const xPos_L = cellStartX_L + (CELL_WIDTH_9X9_L - totalProblemBlockWidth) / 2;
-            
-            const rowTopEdgeY_L = MARGIN_PT + (rowIndex * CELL_HEIGHT_9X9_L);
-            const yTextBaseline_L = rowTopEdgeY_L + (CELL_HEIGHT_9X9_L / 2) + (FONT_SIZE_9X9 / 3.5);
-            
-            doc.text(problemText, xPos_L, yTextBaseline_L);
-
-            const lineStartX_9x9 = xPos_L + problemTextWidth;
-            const lineEndX_9x9 = lineStartX_9x9 + ANSWER_LINE_LENGTH_PT_9X9;
-            const lineY_9x9 = yTextBaseline_L + (FONT_SIZE_9X9 * 0.15);
-            
-            doc.setLineWidth(0.75);
-            doc.line(lineStartX_9x9, lineY_9x9, lineEndX_9x9, lineY_9x9);
-        }
-        console.log(`[generateTwoDigitMultiplicationHomework] Finished page 2 (9x9 Table, Landscape) for sheet ${sheet + 1}`);
     }
 
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
