@@ -110,6 +110,16 @@ function generateSubtraction10to19WithBorrowing() {
     return problem;
 }
 
+// Generates a multiplication problem: 1-digit number * 1-digit number (1-9).
+function generateOneDigitByOneDigitMultiplicationProblem() {
+    console.log("[generateOneDigitByOneDigitMultiplicationProblem] Entry");
+    const num1 = Math.floor(Math.random() * 9) + 1; // 1-9
+    const num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+    const problem = { num1, num2, operator: '×' };
+    console.log("[generateOneDigitByOneDigitMultiplicationProblem] Returning problem:", problem);
+    return problem;
+}
+
 // Generates a multiplication problem: 2-digit number * 1-digit number.
 // num1 (2-digit) is 10-99. num2 (1-digit) is 2-9.
 function generateMultiplicationProblem() {
@@ -519,6 +529,72 @@ function generateMultiplicationHomework() {
     const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
     doc.save(`kids_multiplication_homework_${timestamp}.pdf`); // Save with a new filename
     console.log("[generateMultiplicationHomework] PDF 'kids_multiplication_homework.pdf' saved. Exiting.");
+}
+
+function generateOneDigitMultiplicationHomework() {
+    console.log("[generateOneDigitMultiplicationHomework] Entry");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        orientation: 'p', // Portrait orientation
+        unit: 'pt',
+        format: 'letter'
+    });
+    console.log("[generateOneDigitMultiplicationHomework] jsPDF instance created.");
+
+    const numPagesInput = document.getElementById('numPagesOneDigitMultiply');
+    const numPages = parseInt(numPagesInput.value) || 1;
+    console.log(`[generateOneDigitMultiplicationHomework] Number of pages requested: ${numPages}`);
+
+    doc.setFont('courier', 'normal');
+
+    const PROBLEMS_PER_PAGE_1X1 = 24;
+    const NUM_COLS_1X1 = 3;
+    const NUM_ROWS_1X1 = 8;
+
+    const CELL_WIDTH_1X1 = CONTENT_WIDTH_PT / NUM_COLS_1X1;   // 504 / 3 = 168 pt
+    const CELL_HEIGHT_1X1 = CONTENT_HEIGHT_PT / NUM_ROWS_1X1; // 684 / 8 = 85.5 pt
+
+    const FONT_SIZE_1X1 = 18;
+    const ANSWER_LINE_LENGTH_1X1 = 50;
+
+    for (let p = 0; p < numPages; p++) {
+        console.log(`[generateOneDigitMultiplicationHomework] Starting page ${p + 1} of ${numPages}`);
+        if (p > 0) {
+            doc.addPage();
+        }
+        doc.setFontSize(FONT_SIZE_1X1);
+
+        for (let i = 0; i < PROBLEMS_PER_PAGE_1X1; i++) {
+            const problem = generateOneDigitByOneDigitMultiplicationProblem();
+
+            const row = Math.floor(i / NUM_COLS_1X1);
+            const col = i % NUM_COLS_1X1;
+
+            const cellStartX = MARGIN_PT + (col * CELL_WIDTH_1X1);
+            const rowTopEdgeY = MARGIN_PT + (row * CELL_HEIGHT_1X1);
+
+            const problemText = `${problem.num1} ${problem.operator} ${problem.num2} = `;
+            const problemTextWidth = doc.getTextWidth(problemText);
+            const totalBlockWidth = problemTextWidth + ANSWER_LINE_LENGTH_1X1;
+
+            const xPos = cellStartX + (CELL_WIDTH_1X1 - totalBlockWidth) / 2;
+            const yTextBaseline = rowTopEdgeY + (CELL_HEIGHT_1X1 / 2) + (FONT_SIZE_1X1 / 3.5);
+
+            doc.text(problemText, xPos, yTextBaseline);
+
+            const lineStartX = xPos + problemTextWidth;
+            const lineEndX = lineStartX + ANSWER_LINE_LENGTH_1X1;
+            const lineY = yTextBaseline + (FONT_SIZE_1X1 * 0.15);
+
+            doc.setLineWidth(0.75);
+            doc.line(lineStartX, lineY, lineEndX, lineY);
+        }
+        console.log(`[generateOneDigitMultiplicationHomework] Finished page ${p + 1}`);
+    }
+
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    doc.save(`kids_1x1_multiplication_homework_${timestamp}.pdf`);
+    console.log("[generateOneDigitMultiplicationHomework] PDF 'kids_1x1_multiplication_homework.pdf' saved. Exiting.");
 }
 
 
