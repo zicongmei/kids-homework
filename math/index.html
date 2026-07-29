@@ -32,10 +32,26 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            /* width: 550px; */ /* Removed fixed width */
             max-width: 550px;   /* Set a maximum width for larger screens */
             width: 100%;      /* Use 100% of parent's width (respecting body padding) */
             box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        summary {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        summary h2 {
+            display: inline-block;
+            margin: 0 0 0 5px;
+            font-size: 1.5rem;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        details.controls[open] summary {
+            margin-bottom: 15px;
         }
 
         label,
@@ -51,7 +67,6 @@
         }
         
         input[type="number"] {
-            /* width: 60px; */ /* Overridden by above block style */
             border: 1px solid #ccc;
         }
 
@@ -105,8 +120,8 @@
 <body>
     <h1>Math Homework Generator</h1>
 
-    <div class="controls">
-        <h2>Addition & Subtraction</h2>
+    <details class="controls">
+        <summary><h2>Addition & Subtraction</h2></summary>
         <div>
             <label for="numPagesAddSub">Number of Pages:</label>
             <input type="number" id="numPagesAddSub" value="1" min="1" max="20">
@@ -125,10 +140,10 @@
         </div>
         <button onclick="generateHomework()">Generate Add/Sub PDF</button>
         <p>Generates addition (sum < 100) and subtraction (result > 0) problems. You can specify how many no-borrowing, with-borrowing, and 10-19 minus 1-digit with borrowing subtraction questions appear per page. The total problems per page is 12.</p>
-    </div>
+    </details>
 
-    <div class="controls">
-        <h2>Mixed Multiplication & Division</h2>
+    <details class="controls" open>
+        <summary><h2>Mixed Multiplication & Division</h2></summary>
         <div>
             <label for="numSheetsMixedMultiply">Number of Sheets:</label>
             <input type="number" id="numSheetsMixedMultiply" value="1" min="1" max="10">
@@ -143,10 +158,10 @@
         </div>
         <button onclick="generateMixedMultiplicationHomework()">Generate Mixed Multiplication/Division PDF</button>
         <p>For each sheet, creates landscape pages with a mix of 2-digit by 1-digit multiplication (vertical) and division problems (vertical, no remainder, result < 10), and optionally includes the 9x9 multiplication table on the back.</p>
-    </div>
+    </details>
 
-    <div class="controls">
-        <h2>2-Digit by 2-Digit Multiplication</h2>
+    <details class="controls" open>
+        <summary><h2>2-Digit by 2-Digit Multiplication</h2></summary>
         <div>
             <label for="numSheetsTwoDigitMultiply">Number of Sheets:</label>
             <input type="number" id="numSheetsTwoDigitMultiply" value="1" min="1" max="10">
@@ -157,37 +172,28 @@
         </div>
         <button onclick="generateTwoDigitMultiplicationHomework()">Generate 2x2 Multiplication PDF</button>
         <p>For each sheet, creates landscape pages with eight 2-digit by 2-digit multiplication problems (vertical format), and optionally includes the 9x9 multiplication table on the back.</p>
-    </div>
+    </details>
 
-    <div class="controls">
-        <h2>1-Digit by 1-Digit Multiplication</h2>
+    <details class="controls" open>
+        <summary><h2>1-Digit by 1-Digit Multiplication</h2></summary>
         <div>
             <label for="numPagesOneDigitMultiply">Number of Pages:</label>
             <input type="number" id="numPagesOneDigitMultiply" value="1" min="1" max="20">
         </div>
         <button onclick="generateOneDigitMultiplicationHomework()">Generate 1x1 Multiplication PDF</button>
         <p>Generates 24 single-digit multiplication problems (1-digit by 1-digit, e.g., 7 × 8 = ___) per page.</p>
-    </div>
+    </details>
 
-    <div class="controls">
-        <h2>Multiplication (Vertical)</h2>
-        <div>
-            <label for="numPagesMultiply">Number of Pages:</label>
-            <input type="number" id="numPagesMultiply" value="1" min="1" max="20">
-        </div>
-        <button onclick="generateMultiplicationHomework()">Generate Multiplication PDF</button>
-        <p>Generates multiplication problems (2-digit by 1-digit, e.g., 45 × 3) in vertical format.</p>
-    </div>
 
-    <div class="controls">
-        <h2>9x9 Multiplication Table</h2>
+    <details class="controls" open>
+        <summary><h2>9x9 Multiplication Table</h2></summary>
         <div>
             <label for="numPages9x9">Number of Pages:</label>
             <input type="number" id="numPages9x9" value="1" min="1" max="20">
         </div>
         <button onclick="generate9x9Homework()">Generate 9x9 Table PDF</button>
         <p>Generates all 81 9x9 multiplication table problems (1x1 to 9x9) in order, on a landscape page (e.g., 7 × 8 = ___).</p>
-    </div>
+    </details>
 
     <script src="resources/maths.js" defer></script>
 </body>

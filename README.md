@@ -17,7 +17,7 @@ The generator can create two types of math worksheets:
 
 ### 2. Multiplication
 *   **1-Digit by 1-Digit Multiplication:** Generates 24 single-digit multiplication problems (e.g., `7 × 8 = ____`) per page.
-*   **2-Digit by 1-Digit Multiplication:** Generates multiplication problems of a 2-digit number by a 1-digit number (e.g., `45 × 3`).
+*   **Mixed Multiplication & Division:** Generates landscape sheets with 2-digit by 1-digit multiplication (vertical) and optional division problems, with optional 9x9 multiplication table on back.
 *   **2-Digit by 2-Digit Multiplication:** Generates multiplication problems of a 2-digit number by a 2-digit number (e.g., `34 × 56`).
 *   **Format:** Problems are presented in a vertical format.
 
