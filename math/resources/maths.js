@@ -111,10 +111,25 @@ function generateSubtraction10to19WithBorrowing() {
 }
 
 // Generates a multiplication problem: 1-digit number * 1-digit number (1-9).
-function generateOneDigitByOneDigitMultiplicationProblem() {
+// If usedProblems (Set of "num1xnum2") is provided, ensures no duplicate problem is generated.
+function generateOneDigitByOneDigitMultiplicationProblem(usedProblems) {
     console.log("[generateOneDigitByOneDigitMultiplicationProblem] Entry");
-    const num1 = Math.floor(Math.random() * 9) + 1; // 1-9
-    const num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+    let num1, num2, key;
+    let attempts = 0;
+    do {
+        num1 = Math.floor(Math.random() * 9) + 1; // 1-9
+        num2 = Math.floor(Math.random() * 9) + 1; // 1-9
+        key = `${num1}x${num2}`;
+        attempts++;
+        if (attempts > 500) {
+            console.warn("[generateOneDigitByOneDigitMultiplicationProblem] Max attempts reached while generating unique problem.");
+            break;
+        }
+    } while (usedProblems && usedProblems.has(key) && usedProblems.size < 81);
+
+    if (usedProblems) {
+        usedProblems.add(key);
+    }
     const problem = { num1, num2, operator: '×' };
     console.log("[generateOneDigitByOneDigitMultiplicationProblem] Returning problem:", problem);
     return problem;
@@ -473,8 +488,10 @@ function generateOneDigitMultiplicationHomework() {
         }
         doc.setFontSize(FONT_SIZE_1X1);
 
+        const usedProblemsForPage = new Set();
+
         for (let i = 0; i < PROBLEMS_PER_PAGE_1X1; i++) {
-            const problem = generateOneDigitByOneDigitMultiplicationProblem();
+            const problem = generateOneDigitByOneDigitMultiplicationProblem(usedProblemsForPage);
 
             const row = Math.floor(i / NUM_COLS_1X1);
             const col = i % NUM_COLS_1X1;
